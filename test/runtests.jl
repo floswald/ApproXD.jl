@@ -211,7 +211,7 @@ for deg in 1:3
 
 	@test size(bs) == (length(points),BSplines.getNumCoefs(b))
 
-	@test_approx_eq_eps maxabs(full(bs)[:] .- Rbase[deg]) 0.0 1e-4
+	@test_approx_eq_eps maximum(abs(full(bs)[:] .- Rbase[deg])) 0.0 1e-4
 
 end
 
