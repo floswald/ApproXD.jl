@@ -107,25 +107,25 @@ facts("testing computation of coefficients") do
 	 tol = 3e-6
 
 	 # check coefs are the same
-	@fact maxabs(coef1 - mycoef) => roughly(0.0,atol=tol)
+	@fact maximum(abs(coef1 - mycoef)) => roughly(0.0,atol=tol)
 
 	# approximate the function values on the original grid
 	# by using the basis in d. this is just reverse of getting coefs!
 	pred = getTensorCoef(d,mycoef)
-	@fact max(abs(pred - yvec)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(pred - yvec)) => roughly(0.0,atol=tol)
 
 	t1 = reshape(pred,7,6,10)
-	@fact max(abs(t1 .- y)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(t1 .- y)) => roughly(0.0,atol=tol)
 
 	# is that really doing what you want?
 	# you want B * coefs
 	B = kron(d[3],kron(d[2],d[1]))
 	pred2 = B * mycoef
-	@fact max(abs(pred2 - yvec)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(pred2 - yvec)) => roughly(0.0,atol=tol)
 
 	# predict usign the predict function	
 	pred = BSplines.evalTensor3(d[3],d[2],d[1],mycoef)
-	@fact max(abs(pred - yvec)) => roughly(0.0,atol=tol)
+	@fact maximum(abs(pred - yvec)) => roughly(0.0,atol=tol)
 
 end
 
