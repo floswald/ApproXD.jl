@@ -38,7 +38,7 @@ facts("testing coefficient estimation on random data") do
 	 res1 = krons * y
 	 myres = getTensorCoef(d,y)
 
-	 @fact sumabs(res1 - myres) => roughly(0.0,atol=0.00001)
+	 @fact sum(abs(res1 - myres)) => roughly(0.0,atol=0.00001)
 
 end
 
@@ -112,20 +112,20 @@ facts("testing computation of coefficients") do
 	# approximate the function values on the original grid
 	# by using the basis in d. this is just reverse of getting coefs!
 	pred = getTensorCoef(d,mycoef)
-	@fact maxabs(pred - yvec) => roughly(0.0,atol=tol)
+	@fact max(abs(pred - yvec)) => roughly(0.0,atol=tol)
 
 	t1 = reshape(pred,7,6,10)
-	@fact maxabs(t1 .- y) => roughly(0.0,atol=tol)
+	@fact max(abs(t1 .- y)) => roughly(0.0,atol=tol)
 
 	# is that really doing what you want?
 	# you want B * coefs
 	B = kron(d[3],kron(d[2],d[1]))
 	pred2 = B * mycoef
-	@fact maxabs(pred2 - yvec) => roughly(0.0,atol=tol)
+	@fact max(abs(pred2 - yvec)) => roughly(0.0,atol=tol)
 
 	# predict usign the predict function	
 	pred = BSplines.evalTensor3(d[3],d[2],d[1],mycoef)
-	@fact maxabs(pred - yvec) => roughly(0.0,atol=tol)
+	@fact max(abs(pred - yvec)) => roughly(0.0,atol=tol)
 
 end
 
