@@ -21,7 +21,6 @@ facts("testing coefficient estimation on random data") do
 	 	for j =1:n2
 	 		for k=1:n3
 	 			y[i + n1*(j-1 + n2*(k-1))] = d[1][i,1] + d[2][j,1] + d[3][k,1] + d[1][i,1]*d[2][j,1]* d[3][k,1]
-	 			# println("index (i,j,k)=($i,$j,$k) maps to position $(i + n1*(j-1 + n2*(k-1)))")
 	 		end
 	 	end
 	 end

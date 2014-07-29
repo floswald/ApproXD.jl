@@ -2,9 +2,7 @@
 
 type FSpaceXD
 	ndim       :: Integer                                  # number of dimensions
-	ndiscrete  :: Integer                                  # number of discrete choices
-	coeff      :: Array{Float64}		                   # coefficient vector/matrix: ncont x ndiscrete, where ndiscrete can be 1
-	idx        :: Integer				                   # idx current col index of coeff (i.e. which discrete state)
+	coeff      :: Array{Float64}		                   # coefficient vector/
 	basis      :: Dict{Integer,BSpline}	                   # dict with spline objects
 	curr_basis :: Dict{Int,SparseMatrixCSC{Float64,Int64}} # dict with current spline evals
 
@@ -24,20 +22,8 @@ type FSpaceXD
 			cb[i] = spzeros(getNumCoefs(bs[i]),1)
 		end
 
-		# number of dchoices
-		if ndims(coeff) > 1
-			ndiscrete = size(coeff,2)
-			idx = 1
-		else
-			ndiscrete = 1
-			idx = 0
-		end
-		return new(ndim,ndiscrete,coeff,idx,bs,cb)
+		return new(ndim,coeff,bs,cb)
 	end
-end
-
-function setindex!(fx::FSpaceXD,i::Integer)
-	fx.idx = i
 end
 
 function getValue(x::Array{Float64,1},fx::FSpaceXD)
@@ -53,9 +39,6 @@ function getValue(x::Array{Float64,1},fx::FSpaceXD)
 	end
 
 	# 2) use evalTensorXX to evaluate at correct coeff vector (in case there are many)
-	if fx.ndiscrete > 1
-		evalTensor(fx.curr_basis,fx.coeff[:,fx.idx])
-	else
-		evalTensor(fx.curr_basis,fx.coeff)
-	end
+	evalTensor(fx.curr_basis,fx.coeff)
 end
+
