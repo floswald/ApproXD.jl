@@ -11,7 +11,6 @@ before_install:
   - sudo apt-get install python-matplotlib
 script:
   - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("BSplines"))`); Pkg.pin("BSplines"); Pkg.resolve()'
-  - if [ $JULIAVERSION = "julianightlies" ]; then julia --code-coverage test/runtests.jl; fi
-  - if [ $JULIAVERSION = "juliareleases" ]; then julia test/runtests.jl; fi
+  - julia --code-coverage test/runtests.jl
 after_success:
-  - if [ $JULIAVERSION = "julianightlies" ]; then julia -e 'cd(Pkg.dir("BSplines")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'; fi
+  - julia -e 'cd(Pkg.dir("BSplines")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'

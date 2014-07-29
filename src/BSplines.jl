@@ -9,6 +9,7 @@ module BSplines
 	# load files
 	include("bspline.jl")
 	include("approx.jl")
+	include("fspacexd.jl")
 
 	export BSpline,
 	       show,
