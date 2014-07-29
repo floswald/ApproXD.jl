@@ -8,6 +8,7 @@ before_install:
   - sudo add-apt-repository ppa:staticfloat/julianightlies -y
   - sudo apt-get update -qq -y
   - sudo apt-get install libpcre3-dev julia -y
+  - sudo apt-get install python-matplotlib
 script:
   - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("BSplines"))`); Pkg.pin("BSplines"); Pkg.resolve()'
   - if [ $JULIAVERSION = "julianightlies" ]; then julia --code-coverage test/runtests.jl; fi

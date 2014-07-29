@@ -4,11 +4,21 @@
 module BSplines
 
 	import Base.show
+	using PyPlot
 
+	# load files
 	include("bspline.jl")
+	include("approx.jl")
+
 	export BSpline,
 	       show,
-	       getBasis
+	       getBasis,
+	       getNumCoefs,
+	       getNumKnots,
+	       getTensorCoef,
+	       FSpaceXD,
+	       getValue,
+	       setindex!
 
 end
 
