@@ -37,22 +37,18 @@ type BSpline
 		new(deg,nKnots,lb,ub,knots)
 	end
 
-	# function BSpline(knots,deg,extend=false)
-	# 	if !issorted(knots)
-	# 		error("knots must be sorted")
-	# 	end
-	# 	numKnots = length(knots) - 2*deg*extend
-	# 	lb = knots[1]
-	# 	ub = knots[end]
-	# 	vecKnots = zeros( numKnots + 2*deg*(1-extend) )
-	# 	# fill knot vector
-	# 	for i in 1:length(knotVec)
-	# 		if i < deg
-
-
-	# 		end
-	# 	end
-	# end
+	# constructor with user supplied interior knots
+	function BSpline(knots::Array,deg::Integer)
+		if !issorted(knots)
+			throw(ArgumentError("knots must be sorted"))
+		end
+		lb = knots[1]
+		ub = knots[end]
+		# extend knot vector by degree on both sides
+		knots_new = [ [lb for i=1:deg], knots, [ub for i=1:deg] ]
+		numKnots = length(knots_new) 
+		new(deg,numKnots,lb,ub,knots_new)
+	end
 
 end
 
@@ -67,6 +63,7 @@ end
 
 function getNumKnots(b::BSpline) return b.numKnots end
 function getNumCoefs(b::BSpline) return b.numKnots + b.degree -1 end
+function getCoefs(b::BSpline) return b.knots[ (b.degree+1):(length(b.knots)-b.degree)] end
 function getDegree(b::BSpline) return b.degree end
 
 
@@ -143,63 +140,71 @@ function getBasis(x::Vector{Float64},b::BSpline)
 	num_nodes = getNumCoefs(b)
 	deg       = b.degree
 
+
+	# if you evaluate a degree 1 basis at its interior knots ("coefs"), you get identity
+	if (deg == 1) && (n == num_nodes) && (sum(abs(x .- getCoefs(b))) < 1e-8)
+		return speye(n)
+	else
 	# sort x?
-	
-	# tmp
-	d = 0.0
-	e = 0.0
+		
+		# tmp
+		d = 0.0
+		e = 0.0
 
-	# create a basis function
-	# return a colvec because currntly only CSC format 
-	# a 1-row sparse matrix is dense
-	bs = spzeros(n,num_nodes)
+		# create a basis function
+		# return a colvec because currntly only CSC format 
+		# a 1-row sparse matrix is dense
+		bs = spzeros(n,num_nodes)
 
-	for xi in 1:n
+		for xi in 1:n
 
-		# check x
-		@assert x[xi]>=b.lower
-		@assert x[xi]<=b.upper
+			# check x
+			@assert x[xi]>=b.lower
+			@assert x[xi]<=b.upper
 
-		# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
-		# i.e. get the index of the lower knot in the active knot span
+			# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
+			# i.e. get the index of the lower knot in the active knot span
 
-		# fix bound behaviour
-		if x[xi] == b.lower
-			mu = deg+1
-		elseif x[xi]==b.upper
-			mu = num_nodes
-		else
-			mu = searchsortedlast(b.knots,x[xi]) 
-		end
-
-		# set 0-degree basis function
-		# 0-deg basis is an indicator function
-		# that is 1.0 in the active knot span and 0.0 else.
-		bs[xi,mu] = 1.0
-
-		# loop over degrees
-		for k=1:deg
-
-			# loop over basis functions
-			for j in mu-k:mu
-
-				# take care of "division by zero" issue
-				# dividing by zero must return 0.0
-				if j+k <= deg +1
-					d = 0.0
-				else
-					d = bs[xi,j] * (x[xi] - b.knots[j]) / (b.knots[j+k]-b.knots[j])
-				end
-
-				if j+1 >= num_nodes+1
-					e = 0.0
-				else
-					e = bs[xi,j+1] * (b.knots[j+k+1] - x[xi])/(b.knots[j+k+1]-b.knots[j+1])
-				end
-				bs[xi,j] = d + e
+			# fix bound behaviour
+			if x[xi] == b.lower
+				mu = deg+1
+			elseif x[xi]==b.upper
+				mu = num_nodes
+			else
+				mu = searchsortedlast(b.knots,x[xi]) 
 			end
 
+			# set 0-degree basis function
+			# 0-deg basis is an indicator function
+			# that is 1.0 in the active knot span and 0.0 else.
+			bs[xi,mu] = 1.0
+
+			# loop over degrees
+			for k=1:deg
+
+				# loop over basis functions
+				for j in mu-k:mu
+
+					# take care of "division by zero" issue
+					# dividing by zero must return 0.0
+					if j+k <= deg +1
+						d = 0.0
+					else
+						d = bs[xi,j] * (x[xi] - b.knots[j]) / (b.knots[j+k]-b.knots[j])
+					end
+
+					if j+1 >= num_nodes+1
+						e = 0.0
+					else
+						e = bs[xi,j+1] * (b.knots[j+k+1] - x[xi])/(b.knots[j+k+1]-b.knots[j+1])
+					end
+					bs[xi,j] = d + e
+				end
+
+			end
 		end
+		return bs
+
 	end
-	return bs
+	
 end

@@ -5,7 +5,8 @@ module test_basics
 using FactCheck, BSplines
 
 
-facts("basic spline computations") do
+facts("equally spaced interior knots constructor") do
+
 
 	deg    = 3
 	nKnots = 7
@@ -19,6 +20,7 @@ facts("basic spline computations") do
 	@fact b.numKnots => nKnots
 	@fact b.lower => lb
 	@fact b.upper => ub
+	@fact sum(abs(BSplines.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) => 0.0
 
 	@fact_throws BSpline(nKnots,deg,ub,lb)
 	@fact_throws BSpline(nKnots,-1,lb,ub)
@@ -31,7 +33,38 @@ facts("basic spline computations") do
 	@fact nonzeros(getBasis(lb,b)) => [1.0]
 	@fact nonzeros(getBasis(ub,b)) => [1.0]
 
+	# a special case
+	deg    = 1
+	npoints = 10
+	nKnots = npoints - deg + 1
+	lb     = 0.0
+	ub     = 10.0
+	points = linspace(lb,ub,npoints)
+	b = BSpline(nKnots,deg,lb,ub)
+
+	@fact all(getBasis(points,b) .== speye(npoints)) => true
 end
+
+
+facts("interior knots user supplied constructor") do
+
+	deg    = 3
+	lb     = 0.0
+	ub     = 10.0
+
+	myknots = linspace(lb,ub,11)
+
+	b = BSpline(myknots,deg)
+
+	@fact all(b.knots .== [ [lb for i=1:deg] , myknots, [ub for i=1:deg] ]) => true
+	@fact getNumKnots(b) => length(myknots) + 2*deg
+
+	knots = linspace(ub,lb,11)
+	@fact_throws BSpline(knots,deg)
+
+end
+
+
 
 
 facts("compare computed basis to R splineDesign()") do

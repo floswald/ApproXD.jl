@@ -54,7 +54,7 @@ facts("testing computation of coefficients") do
 
 	# number of eval points and basis functions:
 	# we require square basis matrices!
-	npoints = [10,6,7]
+	npoints = [20,60,70]
 
 	# number of basis funcs
 	nbasis = npoints

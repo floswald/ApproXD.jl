@@ -11,6 +11,7 @@ cd("$home/git/BSplines.jl")
 include("src/BSplines.jl")
 
 # run individual tests
+include("test/test_basics.jl")
 include("test/test_approx.jl")
 include("test/test_FSpaceXD.jl")
 
