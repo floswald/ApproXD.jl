@@ -4,7 +4,7 @@
 module BSplines
 
 	import Base.show
-	using PyPlot
+	using PyPlot, ArrayViews
 
 	# load files
 	include("bspline.jl")

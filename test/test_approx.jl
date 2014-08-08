@@ -54,7 +54,7 @@ facts("testing computation of coefficients") do
 
 	# number of eval points and basis functions:
 	# we require square basis matrices!
-	npoints = [20,60,70]
+	npoints = [12,9,8]
 
 	# number of basis funcs
 	nbasis = npoints
@@ -90,7 +90,7 @@ facts("testing computation of coefficients") do
 
 	# compute function values so that
 	# k is fastest varying index
-	y = Float64[f(i,j,k) for k in points[3] , j in points[2], i in points[1]]
+	y = Float64[f(i,j,k) for i in points[1] , j in points[2], k in points[3]]
 
 	yvec = y[:]
 
@@ -103,7 +103,7 @@ facts("testing computation of coefficients") do
 	 mycoef = getTensorCoef(id,yvec)
 
 	 # testing tolerance
-	 tol = 3e-6
+	 tol = 5e-6
 
 	 # check coefs are the same
 	@fact maximum(abs(coef1 - mycoef)) => roughly(0.0,atol=tol)
@@ -113,7 +113,7 @@ facts("testing computation of coefficients") do
 	pred = getTensorCoef(d,mycoef)
 	@fact maximum(abs(pred - yvec)) => roughly(0.0,atol=tol)
 
-	t1 = reshape(pred,7,6,10)
+	t1 = reshape(pred,npoints[1],npoints[2],npoints[3])
 	@fact maximum(abs(t1 .- y)) => roughly(0.0,atol=tol)
 
 	# is that really doing what you want?
@@ -480,6 +480,73 @@ facts("testing 4D tensorProduct approximations") do
 
 end
 
+
+
+
+# facts("testing getTensorCoef performance") do
+	
+
+# 	# bounds
+# #      (nJ, ns, nz, ny, np, na, nh, ntau,  nJ, nt-1 )
+# 	lb = [1,1,-1,0,3.0, -1.1,0,1,1,1]
+# 	ub = [9,2, 1,3,9,6.1,1  ,2,2,9,29]
+
+
+# 	ndims = length(lb)
+
+# 	# number of eval points and basis functions:
+# 	# we require square basis matrices!
+# 	npoints = [9,3,3,3,3,17,3,3,9,29]
+
+# 	# number of basis funcs
+# 	nbasis = npoints
+
+# 	# splien degrees
+# 	degs = [1,1,1,1,1,3,1,1,1,1]
+
+# 	# implies a number of knots for each spline
+# 	# remember the restriction that nknots == ncoefs
+# 	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+
+# 	# eval points
+# 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+
+# 	# set up BSplines
+# 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+
+# 	# set of basis functions
+# 	d = Dict{Integer,Array{Float64,2}}()
+# 	for i=1:ndims
+# 		d[i] = full(getBasis(points[i],bsp[i]))
+# 	end
+
+# 	# set of INVERSE basis functions
+# 	id = Dict{Integer,Array{Float64,2}}()
+# 	for k in collect(keys(d))
+# 		id[k] = inv(d[k])
+# 	end
+
+# 	# #  get a function
+# 	# function f(x,y,z,w) 
+# 	# 	sin(sqrt(x^2+y^2)) + (z-w)^3
+# 	# end
+
+# 	# # compute function values so that
+# 	# # k is fastest varying index
+# 	# y = Float64[f(i,j,k,w) for i in points[1], j in points[2], k in points[3], w in points[4]]
+
+# 	# yvec = y[:]
+
+# 	yvec = rand(prod(npoints))
+
+# 	# get coefs using the function
+# 	t0 = time()
+# 		mycoef = getTensorCoef(id,yvec);
+# 	println("timing: $(time()-t0)")
+
+	
+
+# end
 
 
 end

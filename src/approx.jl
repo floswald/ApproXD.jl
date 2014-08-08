@@ -36,6 +36,9 @@ function getTensorCoef{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
 	m     = nall / n
 	v1    = zeros(nall)
 	for i in 1:m
+		# r1 = i + m*(0:(n-1))
+		# r2 = n*(i-1)+1:n*i
+		# view(v1,r1) = stemp * view(v0,r2)
 		v1[m*(0:(n-1)) + i] = stemp * v0[(n*(i-1)) + (1:n)]
 	end
 
@@ -48,12 +51,21 @@ function getTensorCoef{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
 			m     = nall / n
 			# fill!(v1,0.0)
 			for i in 1:m
+				# r1 = n*(i-1) + (1:n)
+				# v1[m*(0:(n-1)) + i] = stemp * view(v0,r1)
 				v1[m*(0:(n-1)) + i] = stemp * v0[(n*(i-1)) + (1:n)]
+				# v1[m*(0:(n-1)) + i] = Base.LinAlg.BLAS.gemv('N',stemp,v0[(n*(i-1)) + (1:n)])
+				# r1 = i + m*(0:(n-1))
+				# r2 = n*(i-1)+1:n*i
+				# view(v1,r1 ) = stemp * view(v0,r2)
 			end
 		end
 	end
 	return v1
 end
+
+# view(v0, n*(i-1)+1:n*i) instead of v0[(n * (i-1)) + (1:n)].
+
 
 function evalTensor2(mat1::Array{Float64,2},mat2::Array{Float64,2},c::Vector)
 
