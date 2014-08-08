@@ -480,73 +480,211 @@ facts("testing 4D tensorProduct approximations") do
 
 end
 
+facts("testing getTensorCoef performance on 4D") do
+	
+	ndims = 4
 
+	# bounds
+	lb = [-1.1,-1.5,-0.9,-1.0]
+	ub = [1.2,1.6,0.9,1]
 
+	# number of eval points and basis functions:
+	# we require square basis matrices!
+	npoints = [3,3,3,17]
 
-# facts("testing getTensorCoef performance") do
+	# number of basis funcs
+	nbasis = npoints
+
+	# splien degrees
+	degs = [1,1,1,3]
+
+	# implies a number of knots for each spline
+	# remember the restriction that nknots == ncoefs
+	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+
+	# eval points
+	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+
+	# set up BSplines
+	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+
+	# set of basis functions
+	d = Dict{Integer,Array{Float64,2}}()
+	for i=1:ndims
+		d[i] = full(getBasis(points[i],bsp[i]))
+	end
+
+	# set of INVERSE basis functions
+	id = Dict{Integer,Array{Float64,2}}()
+	for k in collect(keys(d))
+		id[k] = inv(d[k])
+	end
+
+	# #  get a function
+	# function f(x,y,z,w) 
+	# 	sin(sqrt(x^2+y^2)) + (z-w)^3
+	# end
+
+	# # compute function values so that
+	# # k is fastest varying index
+	# y = Float64[f(i,j,k,w) for i in points[1], j in points[2], k in points[3], w in points[4]]
+
+	# yvec = y[:]
+
+	yvec = rand(prod(npoints))
+	yvec2 = rand(prod(npoints))
+	yvec3 = rand(prod(npoints))
+	yvec4 = rand(prod(npoints))
+
+	# get coefs using the function
+	t0 = time()
+	for i in 1:(2^4 * 81 * 29)	# is,ihh,ih,itau,j,k,age
+		mycoef = getTensorCoef(id,yvec);
+		mycoef = getTensorCoef(id,yvec2);
+		mycoef = getTensorCoef(id,yvec3);
+		mycoef = getTensorCoef(id,yvec4);
+	end
+	println("timing: $(time()-t0)")
+
 	
 
-# 	# bounds
-# #      (nJ, ns, nz, ny, np, na, nh, ntau,  nJ, nt-1 )
-# 	lb = [1,1,-1,0,3.0, -1.1,0,1,1,1]
-# 	ub = [9,2, 1,3,9,6.1,1  ,2,2,9,29]
+end
 
 
-# 	ndims = length(lb)
+facts("testing getTensorCoef performance on 5D") do
+	
+	ndims = 5
 
-# 	# number of eval points and basis functions:
-# 	# we require square basis matrices!
-# 	npoints = [9,3,3,3,3,17,3,3,9,29]
+	# bounds
+	lb = [-1.1,-1.5,-0.9,-1.0,1]
+	ub = [1.2,1.6,0.9,1,9]
 
-# 	# number of basis funcs
-# 	nbasis = npoints
+	# number of eval points and basis functions:
+	# we require square basis matrices!
+	npoints = [3,3,3,17,9]
 
-# 	# splien degrees
-# 	degs = [1,1,1,1,1,3,1,1,1,1]
+	# number of basis funcs
+	nbasis = npoints
 
-# 	# implies a number of knots for each spline
-# 	# remember the restriction that nknots == ncoefs
-# 	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	# splien degrees
+	degs = [1,1,1,3,1]
 
-# 	# eval points
-# 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	# implies a number of knots for each spline
+	# remember the restriction that nknots == ncoefs
+	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
 
-# 	# set up BSplines
-# 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	# eval points
+	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-# 	# set of basis functions
-# 	d = Dict{Integer,Array{Float64,2}}()
-# 	for i=1:ndims
-# 		d[i] = full(getBasis(points[i],bsp[i]))
-# 	end
+	# set up BSplines
+	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
-# 	# set of INVERSE basis functions
-# 	id = Dict{Integer,Array{Float64,2}}()
-# 	for k in collect(keys(d))
-# 		id[k] = inv(d[k])
-# 	end
+	# set of basis functions
+	d = Dict{Integer,Array{Float64,2}}()
+	for i=1:ndims
+		d[i] = full(getBasis(points[i],bsp[i]))
+	end
 
-# 	# #  get a function
-# 	# function f(x,y,z,w) 
-# 	# 	sin(sqrt(x^2+y^2)) + (z-w)^3
-# 	# end
+	# set of INVERSE basis functions
+	id = Dict{Integer,Array{Float64,2}}()
+	for k in collect(keys(d))
+		id[k] = inv(d[k])
+	end
 
-# 	# # compute function values so that
-# 	# # k is fastest varying index
-# 	# y = Float64[f(i,j,k,w) for i in points[1], j in points[2], k in points[3], w in points[4]]
+	# #  get a function
+	# function f(x,y,z,w) 
+	# 	sin(sqrt(x^2+y^2)) + (z-w)^3
+	# end
 
-# 	# yvec = y[:]
+	# # compute function values so that
+	# # k is fastest varying index
+	# y = Float64[f(i,j,k,w) for i in points[1], j in points[2], k in points[3], w in points[4]]
 
-# 	yvec = rand(prod(npoints))
+	# yvec = y[:]
 
-# 	# get coefs using the function
-# 	t0 = time()
-# 		mycoef = getTensorCoef(id,yvec);
-# 	println("timing: $(time()-t0)")
+	yvec = rand(prod(npoints))
+	yvec2 = rand(prod(npoints))
+	yvec3 = rand(prod(npoints))
+	yvec4 = rand(prod(npoints))
+
+	# get coefs using the function
+	t0 = time()
+	for i in 1:(2^4 * 9 * 29)	# is,ihh,ih,itau,j,age
+		mycoef = getTensorCoef(id,yvec);
+		mycoef = getTensorCoef(id,yvec2);
+		mycoef = getTensorCoef(id,yvec3);
+		mycoef = getTensorCoef(id,yvec4);
+	end
+	println("timing: $(time()-t0)")
+
+end
+
+facts("testing getTensorCoef performance on 10D") do
+	
+
+	# bounds
+#      (nJ, ns, nz, ny, np, na, nh, ntau,  nJ, nt-1 )
+	lb = [1,1,-1,0,3.0, -1.1,0,1,1]
+	ub = [9,2, 1,3,9,6.1,1  ,2,2,29]
+
+
+	ndims = length(lb)
+
+	# number of eval points and basis functions:
+	# we require square basis matrices!
+	npoints = [9,3,3,3,3,17,3,3,29]
+
+	# number of basis funcs
+	nbasis = npoints
+
+	# splien degrees
+	degs = [1,1,1,1,1,3,1,1,1]
+
+	# implies a number of knots for each spline
+	# remember the restriction that nknots == ncoefs
+	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+
+	# eval points
+	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+
+	# set up BSplines
+	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+
+	# set of basis functions
+	d = Dict{Integer,Array{Float64,2}}()
+	for i=1:ndims
+		d[i] = full(getBasis(points[i],bsp[i]))
+	end
+
+	# set of INVERSE basis functions
+	id = Dict{Integer,Array{Float64,2}}()
+	for k in collect(keys(d))
+		id[k] = inv(d[k])
+	end
+
+	# #  get a function
+	# function f(x,y,z,w) 
+	# 	sin(sqrt(x^2+y^2)) + (z-w)^3
+	# end
+
+	# # compute function values so that
+	# # k is fastest varying index
+	# y = Float64[f(i,j,k,w) for i in points[1], j in points[2], k in points[3], w in points[4]]
+
+	# yvec = y[:]
+
+	yvec = rand(prod(npoints))
+
+	# get coefs using the function
+	t0 = time()
+	for i=1:9
+		mycoef = getTensorCoef(id,yvec);
+	end
+	println("timing: $(time()-t0)")
 
 	
 
-# end
+end
 
 
 end

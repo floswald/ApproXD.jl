@@ -42,3 +42,8 @@ function getValue(x::Array{Float64,1},fx::FSpaceXD)
 	evalTensor(fx.curr_basis,fx.coeff)
 end
 
+
+function show(io::IO,f::FSpaceXD)
+	print(io,"FSpaceXD with $(f.ndim) dimensions\n")
+end
+
