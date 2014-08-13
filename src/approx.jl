@@ -33,117 +33,42 @@ function getTensorCoef{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
 	# compute product for first matrix
 	ks = sort(collect(keys(ibm)))
 	v0    = copy(v)
+	v1    = zeros(nall)
 	stemp = ibm[ks[1]]
 	n     = size(stemp,1)
 	m     = nall / n
-	v1    = zeros(nall)
 	for i in 1:m, j=1:n
-		# r1 = i + m*(0:(n-1))
-		# r2 = n*(i-1)+1:n*i
-		# view(v1,r1) = stemp * view(v0,r2)
-		# v1[m*(0:(n-1)) + i] = stemp * v0[(n*(i-1)) + (1:n)]
 		vtmp = 0.0
 		for ji=1:n
 			@inbounds vtmp += stemp[j,ji] * v0[n*(i-1) + ji]
 		end
 		v1[m*(j-1) + i] = vtmp
+		# v[m*(j-1) + i] = vtmp
 	end
 
 	# compute for all other matrics
 	if nbm > 1
 		for imat in 2:nbm
 			v0    = copy(v1)
+			# v0    = copy(v)
 			stemp = ibm[ks[imat]]
 			n     = size(stemp,1)
 			m     = nall / n
 			# fill!(v1,0.0)
+			# for i in 1:m, j=1:n
 			for i in 1:m, j=1:n
-				# r1 = n*(i-1) + (1:n)
-				# v1[m*(0:(n-1)) + i] = stemp * view(v0,r1)
-				# v1[m*(0:(n-1)) + i] = stemp * v0[(n*(i-1)) + (1:n)]
-				# v1[m*(j-1) + i] = stemp * v0[n*(i-1) + j]
 				vtmp = 0.0
 				for ji=1:n
 					@inbounds vtmp += stemp[j,ji] * v0[n*(i-1) + ji]
 				end
+				# v[m*(j-1) + i] = vtmp
 				v1[m*(j-1) + i] = vtmp
-				# v1[m*(0:(n-1)) + i] = Base.LinAlg.BLAS.gemv('N',stemp,v0[(n*(i-1)) + (1:n)])
-				# r1 = i + m*(0:(n-1))
-				# r2 = n*(i-1)+1:n*i
-				# view(v1,r1 ) = stemp * view(v0,r2)
 			end
 		end
 	end
 	return v1
 end
 
-
-
-# function getTensorCoef2!{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
-
-# 	# ibm are usually inverse basis matrices
-
-# 	nall = length(v)	# length value vector
-# 	nb   = length(b)
-# 	nbm  = length(ibm)	# number of basis functions / dimensions of v
-
-# 	# size(matrices,2) must be same as length v
-# 	prod1 = 1
-# 	prod2 = 1
-# 	for (k,va) in ibm
-# 		prod1 *= size(va,1)
-# 		prod2 *= size(va,2)
-# 	end
-# 	if !(prod1 == nall)
-# 		throw(ArgumentError("product of size(ibm,1) must be equal to length(v)"))
-# 	end
-# 	if !(prod2 == nb)
-# 		throw(ArgumentError("product of size(ibm,2) must be equal to length(b)"))
-# 	end
-
-# 	vtmp = 0.0
-
-# 	b1 = zeros(nb)
-# 	b0 = zeros(nb)
-
-# 	# compute product for first matrix
-# 	ks = sort(collect(keys(ibm)))
-# 	stemp = ibm[ks[1]]
-# 	n     = size(stemp,1)
-# 	r     = size(stemp,2)
-# 	m     = nall / n
-# 	for i in 1:m, ir=1:r
-# 		vtmp = 0.0
-# 		for ji=1:n
-# 			vtmp += stemp[ji,ir] * v[n*(i-1) + ji]
-# 		end
-# 		b1[m*(ir-1) + ir] = vtmp	# if nall=1000, n=10, m = 100; if nb = 60, i.e. r < 60, the index for ir=2: 100*(2-1) + 2=102 does not exit in b1
-# 	end
-
-# 	# compute for all other matrics
-# 	if nbm > 1
-# 		for imat in 2:nbm
-# 			b0    = copy(b1)
-# 			stemp = ibm[ks[imat]]
-# 			n     = size(stemp,1)
-# 			m     = m*r / n 	# important: take previous r here!
-# 			r     = size(stemp,2)
-# 			for i in 1:m, ir=1:r
-# 				vtmp = 0.0
-# 				for ji=1:n
-# 					vtmp += stemp[j,ji] * b0[n*(i-1) + ji]
-# 				end
-# 				b1[m*(j-1) + i] = vtmp
-# 			end
-# 		end
-# 	end
-# 	return b1
-# end
-
-
-
-
-# view(v0, n*(i-1)+1:n*i) instead of v0[(n * (i-1)) + (1:n)].
 
 
 function evalTensor2(mat1::Array{Float64,2},mat2::Array{Float64,2},c::Vector)
