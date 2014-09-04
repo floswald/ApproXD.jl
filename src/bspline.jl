@@ -85,8 +85,11 @@ function getBasis(x::Float64,b::BSpline)
 	bs = spzeros(num_nodes,1)
 
 	# check x
-	@assert x>=b.lower
-	@assert x<=b.upper
+	if x < b.lower
+		throw(ArgumentError("x < lb: x=$x, lb=$(b.lower)"))
+	elseif x > b.upper
+		throw(ArgumentError("x > ub: x=$x, ub=$(b.upper)"))
+	end
 
 	# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
 	# i.e. get the index of the lower knot in the active knot span
@@ -159,8 +162,11 @@ function getBasis(x::Vector{Float64},b::BSpline)
 		for xi in 1:n
 
 			# check x
-			@assert x[xi]>=b.lower
-			@assert x[xi]<=b.upper
+			if x[xi] < b.lower
+				throw(ArgumentError("x < lb: x=$(x[xi]), lb=$(b.lower)"))
+			elseif x[xi] > b.upper
+				throw(ArgumentError("x > ub: x=$(x[xi]), ub=$(b.upper)"))
+			end
 
 			# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
 			# i.e. get the index of the lower knot in the active knot span

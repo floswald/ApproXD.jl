@@ -10,8 +10,10 @@ module BSplines
 	include("bspline.jl")
 	include("approx.jl")
 	include("fspacexd.jl")
+	include("lininterp.jl")
 
 	export BSpline,
+		   lininterp,
 	       show,
 	       getBasis,
 	       getNumCoefs,
