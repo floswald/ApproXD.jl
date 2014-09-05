@@ -165,43 +165,59 @@ end
 
 facts("testing eval3D") do
 
-	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,5.0,4))
-	push!(gs, linspace(-1,3.0,5))
+	lbs = [1.0,2.0,-1]
+	ubs = [3.0,5.0,3]
 
-	myfun(x,y,z) = x + 2*y + 3*z
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],3))
+	push!(gs, linspace(lbs[2],ubs[2],4))
+	push!(gs, linspace(lbs[3],ubs[3],5))
+
+	myfun(i1,i2,i3) = i1 + 2*i2 + 3*i3
 	
 	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
 	l = lininterp(vs,gs)
 
 	# check value on bounds
-	@fact eval3D(l,[1.0,2.0,-1]) => vs[1,1,1]
-	@fact eval3D(l,[3,5.0,3.0]) => vs[3,4,5]
+	@fact eval3D(l,lbs) => vs[1,1,1]
+	@fact eval3D(l,ubs) => vs[3,4,5]
 	@fact eval3D(l,[1.0,5.0,-1]) => vs[1,4,1]
 	@fact eval3D(l,[1.0,5.0,3]) => vs[1,4,5]
 
 	# check values out of bounds
-	@fact eval3D(l,[-1.0,2.0,-1]) => vs[1,1,1]
-	@fact eval3D(l,[1.0,200.0,-1]) => vs[1,4,1]
+	# @fact eval3D(l,[-1.0,2.0,-1]) => vs[1,1,1]
+	# @fact eval3D(l,[1.0,200.0,-1]) => vs[1,4,1]
+	println(l)
+	println("hitnow = $(l.hitnow)")
+	println("hascache = $(l.hascache)")
+	println(l.cache)
+	# ApproXD.resetCache!(l)
 
-	# check at random vals in interval
-	# x = rand() * 2 + 1
-	# y = rand() * 3 + 2
-	# z = rand() * 4 - 1
+	# close to bounds
+	x=1.99
+	y=4.9
+	z=2.9
+	@fact eval3D(l,[x,y,z]) => myfun(x,y,z)
+
+	x=1.4861407584066377
+	y=3.5646251730324234
+	z=2.7832610606532944
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+
 	x = 2.53
 	y = 2.58
 	z = -0.87
-
-	println("x=$x")
-	println("y=$y")
-	println("z=$z")
-	println("eval = $(eval3D(l,[x,y,z]))")
-	println("true = $(myfun(x,y,z))")
-
 	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
 
+	# check at random vals in interval
+	for i in 1:30
+		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
+		z = rand() * (ubs[3]-lbs[3]) + lbs[3]
+		@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	end
+	println(l)
 end
 
 

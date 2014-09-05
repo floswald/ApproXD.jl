@@ -48,6 +48,7 @@ function resetCache!(l::lininterp)
 	fill!(l.cache,0)
 	l.hits = 0
 	l.miss = 0
+	l.hascache=false
 	return nothing
 end
 function getCache(l::lininterp)
@@ -84,37 +85,41 @@ function eval(l::lininterp,x::Vector{Float64})
 	end
 end
 
-function eval3D(l::lininterp,x::Vector{Float64})
+function eval3D(l::lininterp,z::Vector{Float64})
 
-	if length(x) != 3
+	if length(z) != 3
 		throw(ArgumentError("x needs 3 elements"))
 	end
 
 	# find in which bracket of grid values x is in.
 	# using cached values
 	# finds the relative position of x inside the bracket
-	findBracket!(l,x)
+	findBracket!(l,z)
 
 	# get the function values on the box
-	if l.hitnow
+	# TODO why does this not work?
+	# if l.hitnow
 		# use the same function values as in the last iteration!
 		# therefore do nothing
-	else
+	# else
 		# if missed, need to find the function values on the new bracket
 		find3DVertices!(l)
-	end
+	# end
 
-	# sum up linear combinations
-	v = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*l.vertex[1] + 
-        (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*l.vertex[2] + 
-        (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3])*l.vertex[3] + 
-	    (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3])*l.vertex[4] + 
-	    (    l.z[1])*(    l.z[2])*(1.0-l.z[3])*l.vertex[5] + 
-	    (    l.z[1])*(1.0-l.z[2])*(    l.z[3])*l.vertex[6] + 
-	    (1.0-l.z[1])*(    l.z[2])*(    l.z[3])*l.vertex[7] + 
-	    (    l.z[1])*(    l.z[2])*(    l.z[3])*l.vertex[8]  
+	# build up linear combinations
+	cc = hcat((1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]),  # v000
+		      (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]),  # v100
+		      (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]),  # v010
+              (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3]),  # v001
+              (    l.z[1])*(    l.z[2])*(1.0-l.z[3]),  # v110
+              (    l.z[1])*(1.0-l.z[2])*(    l.z[3]),  # v101
+              (1.0-l.z[1])*(    l.z[2])*(    l.z[3]),  # v011
+              (    l.z[1])*(    l.z[2])*(    l.z[3]) ) # v111
 
-	return v
+
+	v = cc * l.vertex
+	v = v[1]
+	return v[1]
 end
 
 # finds the function values at cartesian grid of indices
@@ -166,10 +171,12 @@ function findBracket!(l::lininterp,x::Vector)
 				l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
 			end
 		end
+		# now l has a cache
 		l.hascache = true
 	
 	# else, search cache		
 	else
+		
 		for i in 1:length(x)
 			# deal with values out of grid: set to grid bounds
 			if x[i] <= l.grids[i][1]
@@ -190,14 +197,14 @@ function findBracket!(l::lininterp,x::Vector)
 			# if x is below current lower bound of bracket, search below
 			elseif x[i] < getCachedVal(l,i)
 				l.miss += 1
-				l.cache[i] = searchsortedlast(l.grids[i],x[i],1,l.cache[i],Base.Forward)
+				l.cache[i] = searchsortedlast(l.grids[i],x[i],1,l.cache[i]-1,Base.Forward)
 				l.infs[i]  = l.grids[i][l.cache[i]]
 				l.sups[i]  = l.grids[i][l.cache[i] + 1]
 				l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
 			# if x is above current upper bound of bracket, search above
 			elseif x[i] >= getNextCachedVal(l,i)
 				l.miss += 1
-				l.cache[i] = searchsortedlast(l.grids[i],x[i],l.cache[i],l.d[i]-1,Base.Forward)
+				l.cache[i] = searchsortedlast(l.grids[i],x[i],l.cache[i]+1,l.d[i]-1,Base.Forward)
 				l.infs[i]  = l.grids[i][l.cache[i]]
 				l.sups[i]  = l.grids[i][l.cache[i] + 1]
 				l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
@@ -215,12 +222,15 @@ end
 function show(io::IO, l::lininterp)
 	print(io,"linear interpolation object with\n")
 	print(io,"number of dims: $(l.n)\n")
+	print(io,"has active cache: $(l.hascache)\n" )
+	print(io,"current vertices: $(l.vertex)\n" )
 	if l.hits+l.miss == 0
 		print(io,"accelerator hits 0% of attemps\n")
 	else
-		print(io,"accelerator hits $(l.hits/(l.hits+l.miss)) % of attemps\n")
+		print(io,"accelerator hits $(round(100*l.hits/(l.hits+l.miss),2)) % of attemps\n")
 	end
 end
+
 
 
 
