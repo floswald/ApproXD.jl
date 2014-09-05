@@ -6,9 +6,9 @@
 
 # main programme
 home = ENV["HOME"]
-cd("$home/git/BSplines.jl")
+cd("$home/git/ApproXD.jl")
 
-include("src/BSplines.jl")
+include("src/ApproXD.jl")
 include("test/test_lininterp.jl")
 
 # run individual tests

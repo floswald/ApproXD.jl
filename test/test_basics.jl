@@ -2,7 +2,7 @@
 
 module test_basics
 
-using FactCheck, BSplines
+using FactCheck, ApproXD
 
 
 facts("equally spaced interior knots constructor") do
@@ -20,7 +20,7 @@ facts("equally spaced interior knots constructor") do
 	@fact b.numKnots => nKnots
 	@fact b.lower => lb
 	@fact b.upper => ub
-	@fact sum(abs(BSplines.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) => 0.0
+	@fact sum(abs(ApproXD.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) => 0.0
 
 	@fact_throws BSpline(nKnots,deg,ub,lb)
 	@fact_throws BSpline(nKnots,-1,lb,ub)
@@ -246,7 +246,7 @@ facts("compare computed basis to R splineDesign()") do
 		b = BSpline(nKnots,deg,lb,ub)
 		bs = getBasis(points,b)
 
-		@fact size(bs) => (length(points),BSplines.getNumCoefs(b))
+		@fact size(bs) => (length(points),ApproXD.getNumCoefs(b))
 
 		@fact maximum(abs(full(bs)[:] .- Rbase[deg])) => roughly(0.0,atol=1e-4)
 

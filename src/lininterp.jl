@@ -4,18 +4,19 @@
 # with cache accelerator
 type lininterp
 
-	d      :: Array{Int}    # number of points in each dimension
-	n      :: Int 	        # number  of dims
-	cache  :: Array{Int}	# current index of lower bound of bracket containing x
-	infs   :: Array{Float64}	    # current value of inf: lower bound of bracket in xgrid
-	sups   :: Array{Float64}	   	# current value of sup: upper bound of bracket in xgrid
-	z      :: Array{Float64}    	# current position in bracket: z = (x-x[inf]) / (x[sup] - x[inf])
-	hits   :: Int 			# count of cache hits
-	miss   :: Int 			# count of cache misses
-	hitnow :: Bool 			# whether current eval is a hit
-	grids  :: Array{Array{Float64}} 	# grids for each dimension
-	vals   :: Array{Float64} 	# array with function values on the grid
-	vertex :: Array{Float64}  # array with current vertices 
+	d        :: Array{Int}    # number of points in each dimension
+	n        :: Int 	        # number  of dims
+	hascache :: Bool 	        # has active cache
+	cache    :: Array{Int}	# current index of lower bound of bracket containing x
+	infs     :: Array{Float64}	    # current value of inf: lower bound of bracket in xgrid
+	sups     :: Array{Float64}	   	# current value of sup: upper bound of bracket in xgrid
+	z        :: Array{Float64}    	# current position in bracket: z = (x-x[inf]) / (x[sup] - x[inf])
+	hits     :: Int 			# count of cache hits
+	miss     :: Int 			# count of cache misses
+	hitnow   :: Bool 			# whether current eval is a hit
+	grids    :: Array{Array{Float64}} 	# grids for each dimension
+	vals     :: Array{Float64} 	# array with function values on the grid
+	vertex   :: Array{Float64}  # array with current vertices
 
 	function lininterp(v::Array{Float64},g::Array{Array{Float64,1}})
 		d = [size(v)...]
@@ -34,8 +35,8 @@ type lininterp
 		if n > 3
 			throw(ArgumentError("currently only up to 3D implemented"))
 		end
-		cache = zeros(Int,n)
-		return new(d,n,cache,zeros(n),zeros(n),zeros(n),0,0,false,g,v,zeros(2^n))
+		cache = ones(Int,n)
+		return new(d,n,false,cache,zeros(n),zeros(n),zeros(n),0,0,false,g,v,zeros(2^n))
 	end
 
 end
@@ -43,10 +44,14 @@ end
 
 getDims(l::lininterp) = l.d 
 getGrids(l::lininterp) =  l.grids 
-function resetCache(l::lininterp) 
+function resetCache!(l::lininterp) 
 	fill!(l.cache,0)
 	l.hits = 0
 	l.miss = 0
+	return nothing
+end
+function getCache(l::lininterp)
+	l.cache
 end
 function getCache(l::lininterp,i::Int)
 	l.cache[i]
@@ -58,7 +63,7 @@ function getNextCachedVal(l::lininterp,i::Int)
 	l.grids[i][l.cache[i] + 1]
 end
 
-function setVals{T}(l::lininterp,v::Array{T})
+function setVals(l::lininterp,v::Array)
 	if size(v) != d
 		throw(ArgumentError("size(v) must be equal to size d"))
 	end
@@ -70,6 +75,14 @@ function hitmiss(l::lininterp)
 	return (l.hits,l.miss)
 end
 
+
+function eval(l::lininterp,x::Vector{Float64})
+	if l.n == 3
+		eval3D(l,x)
+	else
+		warn("only 3D implemented so far")
+	end
+end
 
 function eval3D(l::lininterp,x::Vector{Float64})
 
@@ -119,36 +132,81 @@ end
 
 # finds the inf of x in it's grid for each dimension
 # uses caching
-# remembers last evaluation, and corresponding locations in grid
-# sets boolean hitnow if current evaluation is equal. if true, 
-# don't have to look for the function values on the grid
-# finds position of x in the bracket
+# 1. remembers last evaluation, and corresponding locations in grid
+# 2. sets boolean hitnow if current evaluation is equal. if true, 
+# can use current values in vertex (you were in exactly that bracket last time)
+# 3. finds the bracket of grid values x in is
+# 4. finds position of x in the bracket
 function findBracket!(l::lininterp,x::Vector)
 
 	l.hitnow = false
 
-	# check cache: for each x[i], is x[i] in same bracket as in previous eval?
-	for i in 1:length(x)
+	# if does not have active cache, search entire interval
+	if !l.hascache
+		for i in 1:length(x)
+			l.miss += 1
+			# deal with values out of grid: set to grid bounds
+			if x[i] <= l.grids[i][1]
+				x[i] = l.grids[i][1]
+				l.cache[i] = 1
+				l.infs[i] = l.grids[i][1]
+				l.sups[i] = l.grids[i][2]
+				l.z[i]     = 0.0
 
-		# if x is below current lower bound of bracket, search below
-		if x[i] < getCachedVal(l,i)
-			l.miss += 1
-			l.cache[i] = searchsortedlast(l.grids[i],x[i],1,l.cache[i],Base.Forward)
-			l.infs[i]  = l.grids[i][l.cache[i]]
-			l.sups[i]  = l.grids[i][l.cache[i] + 1]
-			l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
-		# if x is above current upper bound of bracket, search above
-		elseif x[i] >= getNextCachedVal(l,i)
-			l.miss += 1
-			l.cache[i] = searchsortedlast(l.grids[i],x[i],l.cache[i],l.d[i]-1,Base.Forward)
-			l.infs[i]  = l.grids[i][l.cache[i]]
-			l.sups[i]  = l.grids[i][l.cache[i] + 1]
-			l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
-		# if x is in current bracket. cool!
-		else
-			l.hit += 1
-			l.z[i]   = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
-			l.hitnow = true
+			elseif x[i] >= l.grids[i][end]
+				x[i] = l.grids[i][end]
+				l.cache[i] = l.d[i]-1
+				l.infs[i] = l.grids[i][end-1]
+				l.sups[i] = l.grids[i][end]
+				l.z[i]     = 1.0
+			else
+				l.cache[i] = searchsortedlast(l.grids[i],x[i],1,l.d[i]-1,Base.Forward)
+				l.infs[i]  = l.grids[i][l.cache[i]]
+				l.sups[i]  = l.grids[i][l.cache[i] + 1]
+				l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
+			end
+		end
+		l.hascache = true
+	
+	# else, search cache		
+	else
+		for i in 1:length(x)
+			# deal with values out of grid: set to grid bounds
+			if x[i] <= l.grids[i][1]
+				l.miss += 1
+				x[i] = l.grids[i][1]
+				l.cache[i] = 1
+				l.infs[i] = l.grids[i][1]
+				l.sups[i] = l.grids[i][2]
+				l.z[i]     = 0.0
+
+			elseif x[i] >= l.grids[i][end]
+				l.miss += 1
+				x[i] = l.grids[i][end]
+				l.cache[i] = l.d[i]-1
+				l.infs[i] = l.grids[i][end-1]
+				l.sups[i] = l.grids[i][end]
+				l.z[i]     = 1.0
+			# if x is below current lower bound of bracket, search below
+			elseif x[i] < getCachedVal(l,i)
+				l.miss += 1
+				l.cache[i] = searchsortedlast(l.grids[i],x[i],1,l.cache[i],Base.Forward)
+				l.infs[i]  = l.grids[i][l.cache[i]]
+				l.sups[i]  = l.grids[i][l.cache[i] + 1]
+				l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
+			# if x is above current upper bound of bracket, search above
+			elseif x[i] >= getNextCachedVal(l,i)
+				l.miss += 1
+				l.cache[i] = searchsortedlast(l.grids[i],x[i],l.cache[i],l.d[i]-1,Base.Forward)
+				l.infs[i]  = l.grids[i][l.cache[i]]
+				l.sups[i]  = l.grids[i][l.cache[i] + 1]
+				l.z[i]     = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
+			# x is in current bracket. cool!
+			else
+				l.hits += 1
+				l.z[i]   = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
+				l.hitnow = true
+			end
 		end
 	end
 	return nothing

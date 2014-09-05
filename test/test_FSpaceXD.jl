@@ -2,7 +2,7 @@
 
 
 module test_approx
-using BSplines, FactCheck
+using ApproXD, FactCheck
 
 facts("testing FSpaceXD") do
 	ndims = 4
@@ -28,7 +28,7 @@ facts("testing FSpaceXD") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = Dict{Integer,BSpline}()
 	for i in 1:ndims
 		bsp[i] = BSpline(nknots[i],degs[i],lb[i],ub[i])

@@ -1,7 +1,7 @@
 
 
 
-module BSplines
+module ApproXD
 
 	import Base.show
 	using PyPlot, ArrayViews
@@ -26,7 +26,8 @@ module BSplines
 	       getTensorCoef,
 	       FSpaceXD,
 	       getValue,
-	       setindex!
+	       setindex!,
+	       eval3D
 end
 
 

@@ -3,7 +3,7 @@
 module test_approx
 
 
-using BSplines, FactCheck
+using ApproXD, FactCheck
 
 
 facts("testing coefficient estimation on random data") do
@@ -68,7 +68,7 @@ facts("testing computation of coefficients") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:3}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:3}
 
 	# set of basis functions
@@ -123,7 +123,7 @@ facts("testing computation of coefficients") do
 	@fact maximum(abs(pred2 - yvec)) => roughly(0.0,atol=tol)
 
 	# predict usign the predict function	
-	pred = BSplines.evalTensor3(d[3],d[2],d[1],mycoef)
+	pred = ApproXD.evalTensor3(d[3],d[2],d[1],mycoef)
 	@fact maximum(abs(pred - yvec)) => roughly(0.0,atol=tol)
 
 end
@@ -157,7 +157,7 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 	# set of basis functions
@@ -196,13 +196,13 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	rval2 = lb[2] + 0.21
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact BSplines.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
+	@fact ApproXD.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
 
 	rval1 = ub[1] - 0.3
 	rval2 = ub[2] - 0.11
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact BSplines.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
+	@fact ApproXD.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
 
 end
 
@@ -234,7 +234,7 @@ facts("testing 3D tensorProduct approximations") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 	# set of basis functions
@@ -274,7 +274,7 @@ facts("testing 3D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact BSplines.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
+	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
 
 	rval1 = ub[1] - 0.9
 	rval2 = ub[2] - 0.09
@@ -282,7 +282,7 @@ facts("testing 3D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact BSplines.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
+	@fact ApproXD.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
 
 	
 
@@ -314,7 +314,7 @@ facts("testing 4D tensorProduct approximations") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 	# set of basis functions
@@ -357,7 +357,7 @@ facts("testing 4D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact BSplines.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
+	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
 
 	rval1 = ub[1] - 0.14
 	rval2 = ub[2] - 1.01
@@ -367,7 +367,7 @@ facts("testing 4D tensorProduct approximations") do
 	b3 = getBasis(rval3,bsp[3])
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
-	@fact BSplines.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
+	@fact ApproXD.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
 
 end
 
@@ -396,7 +396,7 @@ facts("testing getTensorCoef performance on 4D") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 	# set of basis functions
@@ -463,7 +463,7 @@ end
 # 	# eval points
 # 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-# 	# set up BSplines
+# 	# set up ApproXD
 # 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 # 	# set of basis functions
@@ -532,7 +532,7 @@ facts("testing getTensorCoef performance on 5D") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 	# set of basis functions
@@ -603,7 +603,7 @@ facts("testing getTensorCoef performance on 10D") do
 	# eval points
 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
-	# set up BSplines
+	# set up ApproXD
 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 	# set of basis functions

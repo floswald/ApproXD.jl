@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get install libpcre3-dev julia -y
   - sudo apt-get install python-matplotlib
 script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("BSplines"))`); Pkg.pin("BSplines"); Pkg.resolve()'
+  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("ApproXD"))`); Pkg.pin("ApproXD"); Pkg.resolve()'
   - julia --code-coverage test/runtests.jl
 after_success:
-  - julia -e 'cd(Pkg.dir("BSplines")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia -e 'cd(Pkg.dir("ApproXD")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
