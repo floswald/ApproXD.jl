@@ -136,8 +136,6 @@ facts("testing 2D tensorProduct evaluating off grid") do
 
 	ndims = 2
 
-	doplot = false
-
 	# bounds
 	lb = [-2.1,-2.5]
 	ub = [2.2,2.6]
@@ -206,36 +204,6 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	b1 = getBasis(rval1,bsp[1])
 	@fact BSplines.evalTensor2(b2,b1,mycoef) => roughly(f(rval1,rval2),atol=tol)
 
-
-	if doplot
-
-		 # make a plot
-		 # ===========
-
-		new_npoints = [17,16]
-		# new_npoints = npoints
-		new_points = {i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims}
-		# set of new basis functions
-		nd = Dict{Integer,Array{Float64,2}}()
-		for i=1:ndims
-			nd[i] = full(getBasis(new_points[i],bsp[i]))
-		end
-
-		pred = BSplines.evalTensor2(nd[2],nd[1],mycoef)
-		
-		BSplines.figure()
-		BSplines.subplot(121,projection="3d")
-		BSplines.mesh(points[2],points[1],y)	
-		BSplines.title("true values on grid")
-
-		BSplines.subplot(122,projection="3d")
-		pp = reshape(pred,new_npoints[1],new_npoints[2])
-		BSplines.mesh(new_points[2],new_points[1],pp)	
-		BSplines.title("Approximation off grid")
-
-		BSplines.suptitle("2D TEST")
-
-	end
 end
 
 
@@ -244,7 +212,6 @@ facts("testing 3D tensorProduct approximations") do
 	# 3D approximation example
 
 	ndims = 3
-	doplot = false
 
 	# bounds
 	lb = [-2.1,-2.5,0.9]
@@ -317,44 +284,7 @@ facts("testing 3D tensorProduct approximations") do
 	b1 = getBasis(rval1,bsp[1])
 	@fact BSplines.evalTensor3(b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3),atol=tol)
 
-	if doplot
-
-
-		 # make a plot
-		 # ===========
-
-		new_npoints = [17,16,5]
-		# new_npoints = npoints
-		new_points = {i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims}
-		# set of new basis functions
-		nd = Dict{Integer,Array{Float64,2}}()
-		for i=1:ndims
-			nd[i] = full(getBasis(new_points[i],bsp[i]))
-		end
-
-		pred = BSplines.evalTensor3(nd[3],nd[2],nd[1],mycoef)
-		
-		BSplines.figure()
-		BSplines.subplot(221,projection="3d")
-		BSplines.mesh(points[2],points[1],y[:,:,1])	
-		BSplines.title("true values at lowest 3D state")
-
-		BSplines.subplot(222,projection="3d")
-		pp = reshape(pred,new_npoints[1],new_npoints[2],new_npoints[3])
-		BSplines.mesh(new_points[2],new_points[1],pp[:,:,1])	
-		BSplines.title("Approximation")
-
-		BSplines.subplot(223,projection="3d")
-		BSplines.mesh(points[2],points[1],y[:,:,npoints[3]])	
-		BSplines.title("true values at highest 3D state")
-
-		BSplines.subplot(224,projection="3d")
-		pp = reshape(pred,new_npoints[1],new_npoints[2],new_npoints[3])
-		BSplines.mesh(new_points[2],new_points[1],pp[:,:,new_npoints[3]])	
-		BSplines.title("Approximation")
-		BSplines.suptitle("3D TEST")
-
-	end
+	
 
 end
 
@@ -362,7 +292,6 @@ end
 facts("testing 4D tensorProduct approximations") do
 	
 	ndims = 4
-	doplot = false
 
 	# bounds
 	lb = [-1.1,-1.5,-0.9,-1.0]
@@ -439,44 +368,6 @@ facts("testing 4D tensorProduct approximations") do
 	b2 = getBasis(rval2,bsp[2])
 	b1 = getBasis(rval1,bsp[1])
 	@fact BSplines.evalTensor4(b4,b3,b2,b1,mycoef) => roughly(f(rval1,rval2,rval3,rval4),atol=tol)
-
-	if doplot
-
-		 # make a plot
-		 # ===========
-
-		new_npoints = [17,16,5,7]
-		# new_npoints = npoints
-		new_points = {i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims}
-		# set of new basis functions
-		nd = Dict{Integer,Array{Float64,2}}()
-		for i=1:ndims
-			nd[i] = full(getBasis(new_points[i],bsp[i]))
-		end
-
-		# predict everywhere
-		pred = BSplines.evalTensor4(nd[4],nd[3],nd[2],nd[1],mycoef)
-		
-		BSplines.figure()
-		BSplines.subplot(221,projection="3d")
-		BSplines.mesh(points[2],points[1],y[:,:,1,1])	
-		BSplines.title("true values at lowest state (:,:,1,1)")
-
-		BSplines.subplot(222,projection="3d")
-		pp = reshape(pred,new_npoints[1],new_npoints[2],new_npoints[3],new_npoints[4])
-		BSplines.mesh(new_points[2],new_points[1],pp[:,:,1,1])	
-		BSplines.title("Approximation")
-
-		BSplines.subplot(223,projection="3d")
-		BSplines.mesh(points[2],points[1],y[:,:,npoints[3],npoints[4]])	
-		BSplines.title("true values at state (:,:,end,end)")
-
-		BSplines.subplot(224,projection="3d")
-		pp = reshape(pred,new_npoints[1],new_npoints[2],new_npoints[3],new_npoints[4])
-		BSplines.mesh(new_points[2],new_points[1],pp[:,:,new_npoints[3],new_npoints[4]])	
-		BSplines.title("Approximation")
-		BSplines.suptitle("4D TEST")
-	end
 
 end
 

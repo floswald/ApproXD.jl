@@ -12,10 +12,11 @@ facts("constructor for lininterp") do
 	push!(gs, linspace(2.0,3,4))
 	push!(gs, linspace(-1,3.0,5))
 
-	l = BSplines.lininterp(vs,gs)
+	l = lininterp(vs,gs)
 
 	@fact BSplines.getDims(l) => [3,4,5]
-
+	@fact BSplines.n => 3
+	@fact BSplines.infs => zeros(3)
 
 	# errors
 

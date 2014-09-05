@@ -12,6 +12,11 @@ module BSplines
 	include("fspacexd.jl")
 	include("lininterp.jl")
 
+	if Sys.OS_NAME == :Darwin
+	   using PyPlot
+	   include("plotting.jl")
+	end
+
 	export BSpline,
 		   lininterp,
 	       show,
@@ -22,7 +27,6 @@ module BSplines
 	       FSpaceXD,
 	       getValue,
 	       setindex!
-
 end
 
 
