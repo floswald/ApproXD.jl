@@ -186,19 +186,23 @@ facts("testing eval3D") do
 	@fact eval3D(l,[1.0,5.0,3]) => vs[1,4,5]
 
 	# check values out of bounds
-	# @fact eval3D(l,[-1.0,2.0,-1]) => vs[1,1,1]
-	# @fact eval3D(l,[1.0,200.0,-1]) => vs[1,4,1]
+	@fact eval3D(l,[-1.0,2.0,-1]) => vs[1,1,1]
+	println("hitnow = $(l.hitnow)")
+	println("cache = $(l.cache)")
+	@fact eval3D(l,[1.0,200.0,-1]) => vs[1,4,1]
 	println(l)
+	println("cache = $(l.cache)")
+	println(l.vertex)
 	println("hitnow = $(l.hitnow)")
 	println("hascache = $(l.hascache)")
-	println(l.cache)
 	# ApproXD.resetCache!(l)
 
 	# close to bounds
 	x=1.99
 	y=4.9
 	z=2.9
-	@fact eval3D(l,[x,y,z]) => myfun(x,y,z)
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
 
 	x=1.4861407584066377
 	y=3.5646251730324234
@@ -211,15 +215,59 @@ facts("testing eval3D") do
 	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
 
 	# check at random vals in interval
+	lbs = [1.0,2.0,-10]
+	ubs = [33.0,5.0,3]
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],30))
+	push!(gs, linspace(lbs[2],ubs[2],40))
+	push!(gs, linspace(lbs[3],ubs[3],50))
+
+	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
+
+	l = lininterp(vs,gs)
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
 		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
 		z = rand() * (ubs[3]-lbs[3]) + lbs[3]
-		@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+		@fact eval3D(l,[x,y,z]) => roughly(myfun(x,y,z),atol=1e-6)
 	end
 	println(l)
 end
 
+facts("testing eval3D hit/miss") do
+
+	lbs = [1.0,2.0,-1]
+	ubs = [3.0,5.0,3]
+
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],3))
+	push!(gs, linspace(lbs[2],ubs[2],4))
+	push!(gs, linspace(lbs[3],ubs[3],5))
+
+	myfun(i1,i2,i3) = i1 + 2*i2 + 3*i3
+	
+	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
+
+	l = lininterp(vs,gs)
+	@fact hitmiss(l) => (0,0)
+	
+	x=1.99
+	y=4.9
+	z=2.9
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact hitmiss(l) => (0,3)
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact hitmiss(l) => (3,3)
+	x=2.99
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact hitmiss(l) => (5,4)
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact hitmiss(l) => (8,4)
+	y=2.11
+	@fact eval3D(l,[x,y,z]) - myfun(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact hitmiss(l) => (10,5)
+
+end
 
 
 

@@ -97,14 +97,13 @@ function eval3D(l::lininterp,z::Array{Float64,1})
 	findBracket!(l,z)
 
 	# get the function values on the box
-	# TODO why does this not work?
-	# if l.hitnow
+	if l.hitnow
 		# use the same function values as in the last iteration!
 		# therefore do nothing
-	# else
+	else
 		# if missed, need to find the function values on the new bracket
 		find3DVertices!(l)
-	# end
+	end
 
 	# build up linear combinations
 	cc =      (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[1] +   # v000
@@ -175,7 +174,7 @@ function findBracket!(l::lininterp,x::Vector{Float64})
 	
 	# else, search cache		
 	else
-		
+		hits = 0
 		for i in 1:length(x)
 			# deal with values out of grid: set to grid bounds
 			if x[i] <= l.grids[i][1]
@@ -210,19 +209,19 @@ function findBracket!(l::lininterp,x::Vector{Float64})
 			# x is in current bracket. cool!
 			else
 				l.hits += 1
+				hits += 1
 				l.z[i]   = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
-				l.hitnow = true
 			end
 		end
+		l.hitnow = hits == length(x)
 	end
 	return nothing
 end
 
 function show(io::IO, l::lininterp)
 	print(io,"linear interpolation object with\n")
-	print(io,"number of dims: $(l.n)\n")
+	print(io,"dimensions: $(l.d)\n")
 	print(io,"has active cache: $(l.hascache)\n" )
-	print(io,"current vertices: $(l.vertex)\n" )
 	if l.hits+l.miss == 0
 		print(io,"accelerator hits 0% of attemps\n")
 	else

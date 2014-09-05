@@ -27,7 +27,8 @@ module ApproXD
 	       FSpaceXD,
 	       getValue,
 	       setindex!,
-	       eval3D
+	       eval3D,
+	       hitmiss
 end
 
 
