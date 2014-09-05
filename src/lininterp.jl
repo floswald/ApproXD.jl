@@ -85,7 +85,7 @@ function eval(l::lininterp,x::Vector{Float64})
 	end
 end
 
-function eval3D(l::lininterp,z::Vector{Float64})
+function eval3D(l::lininterp,z::Array{Float64,1})
 
 	if length(z) != 3
 		throw(ArgumentError("x needs 3 elements"))
@@ -107,19 +107,18 @@ function eval3D(l::lininterp,z::Vector{Float64})
 	# end
 
 	# build up linear combinations
-	cc = hcat((1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]),  # v000
-		      (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]),  # v100
-		      (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]),  # v010
-              (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3]),  # v001
-              (    l.z[1])*(    l.z[2])*(1.0-l.z[3]),  # v110
-              (    l.z[1])*(1.0-l.z[2])*(    l.z[3]),  # v101
-              (1.0-l.z[1])*(    l.z[2])*(    l.z[3]),  # v011
-              (    l.z[1])*(    l.z[2])*(    l.z[3]) ) # v111
+	cc =      (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[1] +   # v000
+		      (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[2] +   # v100
+		      (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[3] +   # v010
+              (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[4] +   # v001
+              (    l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[5] +   # v110
+              (    l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[6] +   # v101
+              (1.0-l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[7] +   # v011
+              (    l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[8]     # v111
 
 
-	v = cc * l.vertex
-	v = v[1]
-	return v[1]
+	# v = cc * l.vertex
+	return cc
 end
 
 # finds the function values at cartesian grid of indices
@@ -142,7 +141,7 @@ end
 # can use current values in vertex (you were in exactly that bracket last time)
 # 3. finds the bracket of grid values x in is
 # 4. finds position of x in the bracket
-function findBracket!(l::lininterp,x::Vector)
+function findBracket!(l::lininterp,x::Vector{Float64})
 
 	l.hitnow = false
 
