@@ -32,8 +32,8 @@ type lininterp
 				throw(ArgumentError("g[$i] must be sorted!"))
 			end
 		end
-		if n > 3
-			throw(ArgumentError("currently only up to 3D implemented"))
+		if n > 4
+			throw(ArgumentError("currently only up to 4D implemented"))
 		end
 		cache = ones(Int,n)
 		return new(d,n,false,cache,zeros(n),zeros(n),zeros(n),0,0,false,g,v,zeros(2^n))
@@ -77,24 +77,59 @@ function hitmiss(l::lininterp)
 end
 
 
-function eval(l::lininterp,x::Vector{Float64})
-	if l.n == 3
+function getValue(l::lininterp,x::Vector{Float64})
+	if l.n == 2
+		eval2D(l,x)
+	elseif l.n == 3
 		eval3D(l,x)
+	elseif l.n ==4
+		eval4D(l,x)
 	else
-		warn("only 3D implemented so far")
+		warn("only up to 4D implemented so far")
 	end
 end
 
-function eval3D(l::lininterp,z::Array{Float64,1})
+function eval2D(l::lininterp,x::Array{Float64,1})
 
-	if length(z) != 3
-		throw(ArgumentError("x needs 3 elements"))
+	if length(x) != 2
+		throw(ArgumentError("x needs 2 elements: one for each D in 2D!"))
+	end
+	if l.n != 2
+		throw(ArgumentError("must supply a lininterp with 2D"))
 	end
 
 	# find in which bracket of grid values x is in.
 	# using cached values
 	# finds the relative position of x inside the bracket
-	findBracket!(l,z)
+	findBracket!(l,x)
+
+	# get the function values on the box
+	if l.hitnow
+		# use the same function values as in the last iteration!
+		# therefore do nothing
+	else
+		# if missed, need to find the function values on the new bracket
+		find2DVertices!(l)
+	end
+
+	# build up linear combinations
+	cc = (1.0-l.z[1])*(1.0-l.z[2]) * l.vertex[1] +   # v00
+		 (    l.z[1])*(1.0-l.z[2]) * l.vertex[2] +   # v10
+		 (1.0-l.z[1])*(    l.z[2]) * l.vertex[3] +   # v01
+         (    l.z[1])*(    l.z[2]) * l.vertex[4]     # v11
+	return cc
+end
+
+function eval3D(l::lininterp,x::Array{Float64,1})
+
+	if length(x) != 3
+		throw(ArgumentError("x needs 3 elements: one for each D in 3D!"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
 
 	# get the function values on the box
 	if l.hitnow
@@ -106,18 +141,66 @@ function eval3D(l::lininterp,z::Array{Float64,1})
 	end
 
 	# build up linear combinations
-	cc =      (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[1] +   # v000
-		      (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[2] +   # v100
-		      (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[3] +   # v010
-              (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[4] +   # v001
-              (    l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[5] +   # v110
-              (    l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[6] +   # v101
-              (1.0-l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[7] +   # v011
-              (    l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[8]     # v111
+	cc = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[1] +   # v000
+		 (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[2] +   # v100
+		 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[3] +   # v010
+         (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[4] +   # v001
+         (    l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[5] +   # v110
+         (    l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[6] +   # v101
+         (1.0-l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[7] +   # v011
+         (    l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[8]     # v111
 
 
 	# v = cc * l.vertex
 	return cc
+end
+
+function eval4D(l::lininterp,x::Array{Float64,1})
+
+	if length(x) != 4
+		throw(ArgumentError("x needs 4 elements: one for each D in 4D!"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
+
+	# get the function values on the box
+	if l.hitnow
+		# use the same function values as in the last iteration!
+		# therefore do nothing
+	else
+		# if missed, need to find the function values on the new bracket
+		find4DVertices!(l)
+	end
+
+	# build up linear combinations
+	cc = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[1]  +   # v0000
+		 (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[2]  +   # v1000
+		 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[3]  +   # v0100
+         (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[4]  +   # v0010
+         (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[5]  +   # v0001
+         (    l.z[1])*(    l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[6]  +   # v1100
+         (    l.z[1])*(1.0-l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[7]  +   # v1010
+         (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[8]  +   # v1001
+	     (1.0-l.z[1])*(    l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[9]  +   # v0110
+		 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[10] +   # v0101
+		 (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[11] +   # v0011
+         (    l.z[1])*(    l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[12] +   # v1110
+         (    l.z[1])*(    l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[13] +   # v1101
+         (    l.z[1])*(1.0-l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[14] +   # v1011
+         (1.0-l.z[1])*(    l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[15] +   # v0111
+         (    l.z[1])*(    l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[16]     # v1111
+
+	return cc
+end
+
+function find2DVertices!(l::lininterp)
+	l.vertex[1] = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]-1)]	# v00
+	l.vertex[2] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]-1)]	# v10
+	l.vertex[3] = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]  )]	# v01
+	l.vertex[4] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]  )]	# v11
 end
 
 # finds the function values at cartesian grid of indices
@@ -131,6 +214,25 @@ function find3DVertices!(l::lininterp)
 	l.vertex[6] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*(l.cache[3]  ))]	# v101
 	l.vertex[7] = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*(l.cache[3]  ))]	# v011
 	l.vertex[8] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]   + l.d[2]*(l.cache[3]  ))]	# v111
+end
+
+function find4DVertices!(l::lininterp)
+	l.vertex[1]  = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v0000
+	l.vertex[2]  = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v1000
+	l.vertex[3]  = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v0100
+	l.vertex[4]  = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]-1)))]	# v0010
+	l.vertex[5]  = l.vals[l.cache[1] +   + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]  )))]	# v0001
+	l.vertex[6]  = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v1100
+	l.vertex[7]  = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]-1)))]	# v1010
+	l.vertex[8]  = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]  )))]	# v1001
+	l.vertex[9]  = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]-1)))]	# v0110
+	l.vertex[10] = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]  )))]	# v0101
+	l.vertex[11] = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]  )))]	# v0011
+	l.vertex[12] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]-1)))]	# v1110
+	l.vertex[13] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]  )))]	# v1101
+	l.vertex[14] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]  )))]	# v1011
+	l.vertex[15] = l.vals[l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]  )))]	# v0111
+	l.vertex[16] = l.vals[l.cache[1] + 1 + l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]  ) + l.d[3]*(l.cache[4]  )))]	# v1111
 end
 
 # finds the inf of x in it's grid for each dimension

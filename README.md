@@ -1,7 +1,7 @@
 
 
 
-# ApproXD: Function Approximation in X Dimensions in Julia 
+# ApproXD.jl: Function Approximation in X Dimensions in Julia 
 
 [![Build Status](https://travis-ci.org/floswald/ApproXD.jl.png?branch=master)](https://travis-ci.org/floswald/ApproXD.jl)
 
