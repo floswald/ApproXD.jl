@@ -10,7 +10,7 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 1) If you use this code in your work, please do cite this repository as
-    High Dimensional Function Approximation, https://github.com/floswald/BSplines.jl,
+    High Dimensional Function Approximation, https://github.com/floswald/ApproXD.jl,
     Florian Oswald, 21014
 2) The above copyright notice and this permission notice shall be included in
     all copies or substantial portions of the Software.

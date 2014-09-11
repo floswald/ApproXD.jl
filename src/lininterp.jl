@@ -4,20 +4,19 @@
 #' on the same point
 type lininterp
 
-	d        :: Array{Int}    # number of points in each dimension
-	n        :: Int 	        # number  of dims
-	nfunc    :: Int 	        # number  of different functions to evaluate on the same point
-	hascache :: Bool 	        # has active cache
-	cache    :: Array{Int}	# current index of lower bound of bracket containing x
-	infs     :: Array{Float64}	    # current value of inf: lower bound of bracket in xgrid
-	sups     :: Array{Float64}	   	# current value of sup: upper bound of bracket in xgrid
-	z        :: Array{Float64}    	# current position in bracket: z = (x-x[inf]) / (x[sup] - x[inf])
-	hits     :: Int 			# count of cache hits
-	miss     :: Int 			# count of cache misses
-	hitnow   :: Bool 			# whether current eval is a hit
-	grids    :: Array{Vector{Float64}} 	# grids for each dimension
-	vals     :: Array{Array{Float64}} 	# arrays with function values on the grid.
-	vertex   :: Array{Array{Float64}}  # arrays with current vertices
+	d          :: Array{Int}    # number of points in each dimension
+	n          :: Int 	        # number  of dims
+	nfunc      :: Int 	        # number  of different functions to evaluate on the same point
+	hascache   :: Bool 	        # has active cache
+	cache      :: Array{Int}	# current index of lower bound of bracket containing x
+	infs       :: Array{Float64}	    # current value of inf: lower bound of bracket in xgrid
+	sups       :: Array{Float64}	   	# current value of sup: upper bound of bracket in xgrid
+	z          :: Array{Float64}    	# current position in bracket: z = (x-x[inf]) / (x[sup] - x[inf])
+	hits       :: Int 			# count of cache hits
+	miss       :: Int 			# count of cache misses
+	grids      :: Array{Vector{Float64}} 	# grids for each dimension
+	vals       :: Array{Array{Float64}} 	# arrays with function values on the grid.
+	vertex     :: Array{Array{Float64}}  # arrays with current vertices
 
 	# constructor for multiple functions to approximate
 	function lininterp(v::Array{Array{Float64}},g::Array{Vector{Float64}})
@@ -46,7 +45,7 @@ type lininterp
 		for i=1:nfunc
 			push!(vertex,zeros(2^n))
 		end
-		return new(d,n,nfunc,false,cache,zeros(n),zeros(n),zeros(n),0,0,false,g,v,vertex)
+		return new(d,n,nfunc,false,cache,zeros(n),zeros(n),zeros(n),0,0,g,v,vertex)
 	end
 
 end
@@ -76,7 +75,6 @@ function resetCache!(l::lininterp)
 	fill!(l.cache,0)
 	l.hits = 0
 	l.miss = 0
-	l.hitnow = false
 	l.hascache=false
 	return nothing
 end
@@ -112,6 +110,7 @@ function setGrid(l::lininterp,i::Int,g::Vector{Float64})
 	return nothing
 end
 
+
 function hitmiss(l::lininterp)
 	return (l.hits,l.miss)
 end
@@ -137,13 +136,9 @@ end
 # finds the inf of x in it's grid for each dimension
 # uses caching
 # 1. remembers last evaluation, and corresponding locations in grid
-# 2. sets boolean hitnow if current evaluation is equal. if true, 
-# can use current values in vertex (you were in exactly that bracket last time)
-# 3. finds the bracket of grid values x in is
-# 4. finds position of x in the bracket
+# 2. finds the bracket of grid values x in is
+# 3. finds position of x in the bracket
 function findBracket!(l::lininterp,x::Vector{Float64})
-
-	l.hitnow = false
 
 	# if does not have active cache, search entire interval
 	if !l.hascache
@@ -175,7 +170,6 @@ function findBracket!(l::lininterp,x::Vector{Float64})
 	
 	# else, search cache		
 	else
-		hits = 0
 		for i in 1:length(x)
 			# deal with values out of grid: set to grid bounds
 			if x[i] <= l.grids[i][1]
@@ -210,11 +204,9 @@ function findBracket!(l::lininterp,x::Vector{Float64})
 			# x is in current bracket. cool!
 			else
 				l.hits += 1
-				hits += 1
 				l.z[i]   = (x[i] - l.infs[i]) / (l.sups[i] - l.infs[i])
 			end
 		end
-		l.hitnow = hits == length(x)
 	end
 	return nothing
 end
@@ -247,13 +239,7 @@ function eval2D(l::lininterp,x::Array{Float64,1})
 	findBracket!(l,x)
 
 	# get the function values on the box
-	if l.hitnow
-		# use the same function values as in the last iteration!
-		# therefore do nothing
-	else
-		# if missed, need to find the function values on the new bracket
-		find2DVertices!(l)
-	end
+	find2DVertices!(l)
 
 	# build up linear combinations
 	out = Float64[]
@@ -299,15 +285,7 @@ function eval3D(l::lininterp,x::Array{Float64,1})
 	# using cached values
 	# finds the relative position of x inside the bracket
 	findBracket!(l,x)
-
-	# get the function values on the box
-	if l.hitnow
-		# use the same function values as in the last iteration!
-		# therefore do nothing
-	else
-		# if missed, need to find the function values on the new bracket
-		find3DVertices!(l)
-	end
+	find3DVertices!(l)
 
 	# build up linear combinations
 	out = Float64[]
@@ -365,13 +343,7 @@ function eval4D(l::lininterp,x::Array{Float64,1})
 	findBracket!(l,x)
 
 	# get the function values on the box
-	if l.hitnow
-		# use the same function values as in the last iteration!
-		# therefore do nothing
-	else
-		# if missed, need to find the function values on the new bracket
-		find4DVertices!(l)
-	end
+	find4DVertices!(l)
 
 	# build up linear combinations
 	out = Float64[]

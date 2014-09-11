@@ -28,7 +28,9 @@ module ApproXD
 	       getValue,
 	       setindex!,
 	       getValue,
-	       hitmiss
+	       hitmiss,
+	       resetCache!,
+	       setGrid
 end
 
 

@@ -20,7 +20,6 @@ facts("constructor for 2D lininterp on a single function") do
 	@fact l.sups => zeros(2)
 	@fact l.hits => 0
 	@fact l.miss => 0
-	@fact l.hitnow => false
 	@fact l.vals[1] => vs
 	@fact l.grids => gs
 	@fact ApproXD.getCache(l) => [1,1]
@@ -53,7 +52,6 @@ facts("constructor for 2D lininterp on two functions") do
 	@fact l.sups => zeros(2)
 	@fact l.hits => 0
 	@fact l.miss => 0
-	@fact l.hitnow => false
 	@fact l.vals[1] => vs1
 	@fact l.vals[2] => vs2
 	@fact l.grids => gs
@@ -86,7 +84,6 @@ facts("constructor for 3D lininterp") do
 	@fact l.sups => zeros(3)
 	@fact l.hits => 0
 	@fact l.miss => 0
-	@fact l.hitnow => false
 	@fact l.vals[1] => vs
 	@fact l.grids => gs
 	@fact ApproXD.getCache(l) => [1,1,1]
@@ -119,7 +116,6 @@ facts("constructor for 4D lininterp") do
 	@fact l.sups => zeros(4)
 	@fact l.hits => 0
 	@fact l.miss => 0
-	@fact l.hitnow => false
 	@fact l.vals[1] => vs
 	@fact l.grids => gs
 	@fact ApproXD.getCache(l) => [1,1,1,1]
@@ -289,7 +285,6 @@ facts("testing find3DVertices!(l) for 1 function") do
 	x = [3,6,3.0] 	# => brackets 2,3,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,6)
-	@fact l.hitnow => false
 	ApproXD.find3DVertices!(l)
 
 	@fact l.vertex[1][1] => vs[2,3,4]  # v000   
@@ -305,7 +300,6 @@ facts("testing find3DVertices!(l) for 1 function") do
 	x = [-1,6.5,-3.0] 	# => brackets 1,3,1
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,9)
-	@fact l.hitnow => false
 	ApproXD.find3DVertices!(l)
 
 	@fact l.vertex[1][1] => vs[1,3,1]  # v000   
@@ -356,7 +350,6 @@ facts("testing find3DVertices!(l) for 2 functions") do
 	x = [3,6,3.0] 	# => brackets 2,3,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,6)
-	@fact l.hitnow => false
 	ApproXD.find3DVertices!(l)
 
 	@fact l.vertex[1][1] => vs1[2,3,4]  # v000   
@@ -381,7 +374,6 @@ facts("testing find3DVertices!(l) for 2 functions") do
 	x = [-1,6.5,-3.0] 	# => brackets 1,3,1
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,9)
-	@fact l.hitnow => false
 	ApproXD.find3DVertices!(l)
 
 	@fact l.vertex[1][1] => vs1[1,3,1]  # v000   
@@ -442,7 +434,6 @@ facts("testing find4DVertices!(l) single function") do
 	x = [3,6,3.0,1.5] 	# => brackets 2,3,4,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,8)
-	@fact l.hitnow => false
 	ApproXD.find4DVertices!(l)
 
 	@fact l.vertex[1][1]  => vs[2,3,4,4]  # v0000
@@ -466,7 +457,6 @@ facts("testing find4DVertices!(l) single function") do
 	x = [-1,6.5,-3.0,1.5] 	# => brackets 1,3,1,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (1,11)
-	@fact l.hitnow => false
 	ApproXD.find4DVertices!(l)
 
 	@fact l.vertex[1][1]  => vs[1,3,1,4]  # v0000
@@ -541,7 +531,6 @@ facts("testing find4DVertices!(l) 2 functions") do
 	x = [3,6,3.0,1.5] 	# => brackets 2,3,4,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,8)
-	@fact l.hitnow => false
 	ApproXD.find4DVertices!(l)
 
 	@fact l.vertex[1][1]  => vs1[2,3,4,4]  # v0000
@@ -582,7 +571,6 @@ facts("testing find4DVertices!(l) 2 functions") do
 	x = [-1,6.5,-3.0,1.5] 	# => brackets 1,3,1,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (1,11)
-	@fact l.hitnow => false
 	ApproXD.find4DVertices!(l)
 
 	@fact l.vertex[1][1]  => vs1[1,3,1,4]  # v0000
@@ -645,7 +633,6 @@ facts("testing getValue2D") do
 	@fact getValue(l,[-1.0,2.0])[1] => vs[1,1]
 	@fact getValue(l,[1.0,200.0])[1] => vs[1,4]
 	println(l)
-	# ApproXD.resetCache!(l)
 
 	# close to bounds
 	x=1.99
@@ -660,6 +647,8 @@ facts("testing getValue2D") do
 	x = 2.53
 	y = 2.58
 	@fact getValue(l,[x,y])[1] - myfun(x,y) => roughly(0.0,atol=1e-6)
+
+
 
 	# check at random vals in interval
 	lbs = [1.0,2.0]
