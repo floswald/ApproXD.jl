@@ -16,6 +16,7 @@ facts("constructor for 2D lininterp on a single function") do
 	@fact ApproXD.getDims(l) => [3,4]
 	@fact l.n => 2
 	@fact l.nfunc => 1
+	@fact l.ifunc => [1]
 	@fact l.infs => zeros(2)
 	@fact l.sups => zeros(2)
 	@fact l.hits => 0
@@ -48,6 +49,7 @@ facts("constructor for 2D lininterp on two functions") do
 	@fact ApproXD.getDims(l) => [3,4]
 	@fact l.n => 2
 	@fact l.nfunc => 2
+	@fact l.ifunc => [1,2]
 	@fact l.infs => zeros(2)
 	@fact l.sups => zeros(2)
 	@fact l.hits => 0
@@ -80,6 +82,7 @@ facts("constructor for 3D lininterp") do
 
 	@fact ApproXD.getDims(l) => [3,4,5]
 	@fact l.n => 3
+	@fact l.ifunc => [1]
 	@fact l.infs => zeros(3)
 	@fact l.sups => zeros(3)
 	@fact l.hits => 0
@@ -756,10 +759,8 @@ facts("testing getValue3D on 2 functions") do
 	l = lininterp(vs1,vs2,gs)
 
 	# check value on bounds
-	@fact getValue(l,lbs)[1] => vs1[1,1,1]
-	@fact getValue(l,lbs)[2] => vs2[1,1,1]
-	@fact getValue(l,ubs)[1] => vs1[3,4,5]
-	@fact getValue(l,ubs)[2] => vs2[3,4,5]
+	@fact getValue(l,lbs) .- [vs1[1,1,1],vs2[1,1,1]] => zeros(2)
+	@fact getValue(l,ubs) .- [vs1[3,4,5],vs2[3,4,5]] => zeros(2)
 	@fact getValue(l,[1.0,5.0,-1])[1] => vs1[1,4,1]
 	@fact getValue(l,[1.0,5.0,-1])[2] => vs2[1,4,1]
 	@fact getValue(l,[1.0,5.0,3])[1] => vs1[1,4,5]
@@ -816,7 +817,86 @@ facts("testing getValue3D on 2 functions") do
 	println(l)
 end
 
+facts("testing getValue3D on 2 functions with ifunc switch") do
 
+	lbs = [1.0,2.0,-1]
+	ubs = [3.0,5.0,3]
+
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],3))
+	push!(gs, linspace(lbs[2],ubs[2],4))
+	push!(gs, linspace(lbs[3],ubs[3],5))
+
+	myfun1(i1,i2,i3) = 0.5*i1 + 2*i2 + 3*i3
+	myfun2(i1,i2,i3) = 3*i1 + pi*i2 + 0.1*i3
+	
+	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
+	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
+
+	l = lininterp(vs1,vs2,gs)
+
+	# check value on bounds
+	@fact getValue(l,lbs,[1]) => [vs1[1,1,1]]
+	@fact getValue(l,lbs,[2]) => [vs2[1,1,1]]
+	@fact getValue(l,ubs,[1]) => [vs1[3,4,5]]
+	@fact getValue(l,ubs,[2]) => [vs2[3,4,5]]
+	@fact getValue(l,[1.0,5.0,-1],[1]) => [vs1[1,4,1]]
+	@fact getValue(l,[1.0,5.0,-1],[2]) => [vs2[1,4,1]]
+	@fact getValue(l,[1.0,5.0,3],[1])  => [vs1[1,4,5]]
+	@fact getValue(l,[1.0,5.0,3],[2])  => [vs2[1,4,5]]
+
+	# check values out of bounds
+	@fact getValue(l,[-1.0,2.0,-1],[1])  => [vs1[1,1,1]]
+	@fact getValue(l,[-1.0,2.0,-1],[2])  => [vs2[1,1,1]]
+	@fact getValue(l,[1.0,200.0,-1],[1]) => [vs1[1,4,1]]
+	@fact getValue(l,[1.0,200.0,-1],[2]) => [vs2[1,4,1]]
+	@fact getValue(l,[1.0,200.0,-1],[1,2]) => [vs1[1,4,1],vs2[1,4,1]]
+	@fact getValue(l,[1.0,200.0,-1]) => [vs1[1,4,1],vs2[1,4,1]]
+	println(l)
+	# ApproXD.resetCache!(l)
+
+	# close to bounds
+	x=1.99
+	y=4.9
+	z=2.9
+	@fact getValue(l,[x,y,z])[1] - myfun1(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact getValue(l,[x,y,z])[2] - myfun2(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact getValue(l,[x,y,z])[1] - myfun1(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact getValue(l,[x,y,z])[2] - myfun2(x,y,z) => roughly(0.0,atol=1e-6)
+
+	x=1.4861407584066377
+	y=3.5646251730324234
+	z=2.7832610606532944
+	@fact getValue(l,[x,y,z])[1] - myfun1(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact getValue(l,[x,y,z])[2] - myfun2(x,y,z) => roughly(0.0,atol=1e-6)
+
+	x = 2.53
+	y = 2.58
+	z = -0.87
+	@fact getValue(l,[x,y,z])[1] - myfun1(x,y,z) => roughly(0.0,atol=1e-6)
+	@fact getValue(l,[x,y,z])[2] - myfun2(x,y,z) => roughly(0.0,atol=1e-6)
+
+	# check at random vals in interval
+	lbs = [1.0,2.0,-10]
+	ubs = [33.0,5.0,3]
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],30))
+	push!(gs, linspace(lbs[2],ubs[2],40))
+	push!(gs, linspace(lbs[3],ubs[3],50))
+
+	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
+	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
+
+	l = lininterp(vs1,vs2,gs)
+	for i in 1:30
+		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
+		z = rand() * (ubs[3]-lbs[3]) + lbs[3]
+		@fact getValue(l,[x,y,z])[1] => roughly(myfun1(x,y,z),atol=1e-6)
+		@fact getValue(l,[x,y,z])[2] => roughly(myfun2(x,y,z),atol=1e-6)
+	end
+	println(l)
+end
 
 facts("testing getValue hit/miss for 3D") do
 

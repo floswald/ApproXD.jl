@@ -30,7 +30,7 @@ module ApproXD
 	       getValue,
 	       hitmiss,
 	       resetCache!,
-	       setGrid
+	       setGrid!
 end
 
 

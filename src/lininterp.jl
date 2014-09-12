@@ -7,6 +7,7 @@ type lininterp
 	d          :: Array{Int}    # number of points in each dimension
 	n          :: Int 	        # number  of dims
 	nfunc      :: Int 	        # number  of different functions to evaluate on the same point
+	ifunc      :: Vector{Int} 	# indices of which funcs to evaluate
 	hascache   :: Bool 	        # has active cache
 	cache      :: Array{Int}	# current index of lower bound of bracket containing x
 	infs       :: Array{Float64}	    # current value of inf: lower bound of bracket in xgrid
@@ -26,6 +27,7 @@ type lininterp
 		end
 		n = length(d)
 		nfunc = length(v)
+		ifunc = [1:nfunc]
 		if length(d) != length(g)
 			throw(ArgumentError("v must have as many dims as g has grids"))
 		end
@@ -45,7 +47,7 @@ type lininterp
 		for i=1:nfunc
 			push!(vertex,zeros(2^n))
 		end
-		return new(d,n,nfunc,false,cache,zeros(n),zeros(n),zeros(n),0,0,g,v,vertex)
+		return new(d,n,nfunc,ifunc,false,cache,zeros(n),zeros(n),zeros(n),0,0,g,v,vertex)
 	end
 
 end
@@ -99,7 +101,7 @@ function setVals(l::lininterp,which::Int,v::Array)
 	return nothing
 end
 
-function setGrid(l::lininterp,i::Int,g::Vector{Float64})
+function setGrid!(l::lininterp,i::Int,g::Vector{Float64})
 	if length(g) != l.d[i]
 		throw(ArgumentError("new grid g incompatible with dim $i = $(l.d[i])"))
 	end
@@ -117,6 +119,8 @@ end
 
 
 function getValue(l::lininterp,x::Vector{Float64})
+	# make sure all get evaluated
+	l.ifunc = [1:l.nfunc]
 	if l.n == 2
 		eval2D(l,x)
 	elseif l.n == 3
@@ -128,6 +132,22 @@ function getValue(l::lininterp,x::Vector{Float64})
 	end
 end
 
+function getValue(l::lininterp,x::Vector{Float64},which::Vector{Int})
+	if maximum(which) > l.n
+		throw(ArgumentError("which contains a higher index than there are functions"))
+	end
+	# only which get evaluated
+	l.ifunc = which
+	if l.n == 2
+		eval2D(l,x)
+	elseif l.n == 3
+		eval3D(l,x)
+	elseif l.n ==4
+		eval4D(l,x)
+	else
+		warn("only up to 4D implemented so far")
+	end
+end
 
 # evaluation methods
 # ==================
@@ -216,7 +236,7 @@ end
 # =============
 
 function find2DVertices!(l::lininterp)
-	for i in 1:l.nfunc
+	for i in l.ifunc
 		l.vertex[i][1] = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]-1)]	# v00
 		l.vertex[i][2] = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]-1)]	# v10
 		l.vertex[i][3] = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]  )]	# v01
@@ -244,7 +264,7 @@ function eval2D(l::lininterp,x::Array{Float64,1})
 	# build up linear combinations
 	out = Float64[]
 	cc = 0.0
-	for i in 1:l.nfunc
+	for i in l.ifunc
 		cc = (1.0-l.z[1])*(1.0-l.z[2]) * l.vertex[i][1] +   # v00
 			 (    l.z[1])*(1.0-l.z[2]) * l.vertex[i][2] +   # v10
 			 (1.0-l.z[1])*(    l.z[2]) * l.vertex[i][3] +   # v01
@@ -263,7 +283,7 @@ end
 # finds the function values at cartesian grid of indices
 # xinf, xsup, yinf, ysup, zinf, zsup
 function find3DVertices!(l::lininterp)
-	for i in 1:l.nfunc
+	for i in l.ifunc
 		l.vertex[i][1] = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*(l.cache[3]-1))]	# v000
 		l.vertex[i][2] = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*(l.cache[3]-1))]	# v100
 		l.vertex[i][3] = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*(l.cache[3]-1))]	# v010
@@ -290,7 +310,7 @@ function eval3D(l::lininterp,x::Array{Float64,1})
 	# build up linear combinations
 	out = Float64[]
 	cc = 0.0
-	for i in 1:l.nfunc
+	for i in l.ifunc
 		cc = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[i][1] +   # v000
 			 (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[i][2] +   # v100
 			 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[i][3] +   # v010
@@ -310,7 +330,7 @@ end
 # =============
 
 function find4DVertices!(l::lininterp)
-	for i in 1:l.nfunc
+	for i in l.ifunc
 		l.vertex[i][1]  = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v0000
 		l.vertex[i][2]  = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v1000
 		l.vertex[i][3]  = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]   + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v0100
@@ -348,7 +368,7 @@ function eval4D(l::lininterp,x::Array{Float64,1})
 	# build up linear combinations
 	out = Float64[]
 	cc = 0.0
-	for i in 1:l.nfunc
+	for i in l.ifunc
 		cc = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][1]  +   # v0000
 			 (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][2]  +   # v1000
 			 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][3]  +   # v0100
@@ -378,6 +398,7 @@ function show(io::IO, l::lininterp)
 	print(io,"dimensions: $(l.d)\n")
 	print(io,"approximates $(l.nfunc) functions at given point\n")
 	print(io,"has active cache: $(l.hascache)\n" )
+	print(io,"currently evaluates functions $(l.ifunc)\n" )
 	if l.hits+l.miss == 0
 		print(io,"accelerator hits 0% of attemps\n")
 	else
