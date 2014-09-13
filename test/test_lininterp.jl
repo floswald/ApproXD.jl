@@ -835,6 +835,8 @@ facts("testing getValue3D on 2 functions with ifunc switch") do
 
 	l = lininterp(vs1,vs2,gs)
 
+	@fact_throws getValue(l,lbs,[1,2,3])
+
 	# check value on bounds
 	@fact getValue(l,lbs,[1]) => [vs1[1,1,1]]
 	@fact getValue(l,lbs,[2]) => [vs2[1,1,1]]

@@ -133,7 +133,7 @@ function getValue(l::lininterp,x::Vector{Float64})
 end
 
 function getValue(l::lininterp,x::Vector{Float64},which::Vector{Int})
-	if maximum(which) > l.n
+	if maximum(which) > l.nfunc
 		throw(ArgumentError("which contains a higher index than there are functions"))
 	end
 	# only which get evaluated
