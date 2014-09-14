@@ -817,7 +817,7 @@ facts("testing getValue3D on 2 functions") do
 	println(l)
 end
 
-facts("testing getValue3D on 2 functions with ifunc switch") do
+facts("testing getValue! 3D on 2 functions with ifunc switch") do
 
 	lbs = [1.0,2.0,-1]
 	ubs = [3.0,5.0,3]
@@ -835,25 +835,39 @@ facts("testing getValue3D on 2 functions with ifunc switch") do
 
 	l = lininterp(vs1,vs2,gs)
 
-	@fact_throws getValue(l,lbs,[1,2,3])
+	@fact_throws getValue!(l,lbs,[1,2,3])
 
 	# check value on bounds
-	@fact getValue(l,lbs,[1]) => [vs1[1,1,1]]
-	@fact getValue(l,lbs,[2]) => [vs2[1,1,1]]
-	@fact getValue(l,ubs,[1]) => [vs1[3,4,5]]
-	@fact getValue(l,ubs,[2]) => [vs2[3,4,5]]
-	@fact getValue(l,[1.0,5.0,-1],[1]) => [vs1[1,4,1]]
-	@fact getValue(l,[1.0,5.0,-1],[2]) => [vs2[1,4,1]]
-	@fact getValue(l,[1.0,5.0,3],[1])  => [vs1[1,4,5]]
-	@fact getValue(l,[1.0,5.0,3],[2])  => [vs2[1,4,5]]
+	y = [0.0]
+	getValue!(y,l,lbs,[1])
+	@fact y => [vs1[1,1,1]]
+
+	getValue!(y,l,lbs,[2])
+	@fact y => [vs2[1,1,1]]
+	getValue!(y,l,ubs,[1])
+	@fact y => [vs1[3,4,5]]
+	getValue!(y,l,ubs,[2]) 
+	@fact y => [vs2[3,4,5]]
+
+	getValue!(y,l,[1.0,5.0,-1],[1])
+	@fact y => [vs1[1,4,1]]
+	getValue!(y,l,[1.0,5.0,-1],[2])
+	@fact y => [vs2[1,4,1]]
+	getValue!(y,l,[1.0,5.0,3],[1]) 
+	@fact y  => [vs1[1,4,5]]
+	getValue!(y,l,[1.0,5.0,3],[2])
+	@fact y  => [vs2[1,4,5]]
 
 	# check values out of bounds
-	@fact getValue(l,[-1.0,2.0,-1],[1])  => [vs1[1,1,1]]
-	@fact getValue(l,[-1.0,2.0,-1],[2])  => [vs2[1,1,1]]
-	@fact getValue(l,[1.0,200.0,-1],[1]) => [vs1[1,4,1]]
-	@fact getValue(l,[1.0,200.0,-1],[2]) => [vs2[1,4,1]]
-	@fact getValue(l,[1.0,200.0,-1],[1,2]) => [vs1[1,4,1],vs2[1,4,1]]
-	@fact getValue(l,[1.0,200.0,-1]) => [vs1[1,4,1],vs2[1,4,1]]
+	getValue!(y,l,[-1.0,2.0,-1],[1])
+	@fact y => [vs1[1,1,1]]
+	getValue!(y,l,[-1.0,2.0,-1],[2]) 
+	@fact y => [vs2[1,1,1]]
+	y2 = [0.0,0.0]
+	getValue!(y2,l,[1.0,200.0,-1],[1,2])
+	@fact y2 => [vs1[1,4,1],vs2[1,4,1]]
+	getValue!(y,l,[1.0,200.0,-1],[2])
+	@fact y => [vs2[1,4,1]]
 	println(l)
 	# ApproXD.resetCache!(l)
 
@@ -890,12 +904,14 @@ facts("testing getValue3D on 2 functions with ifunc switch") do
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
 	l = lininterp(vs1,vs2,gs)
+	yout = [0.0,0.0]
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
 		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
 		z = rand() * (ubs[3]-lbs[3]) + lbs[3]
-		@fact getValue(l,[x,y,z])[1] => roughly(myfun1(x,y,z),atol=1e-6)
-		@fact getValue(l,[x,y,z])[2] => roughly(myfun2(x,y,z),atol=1e-6)
+		getValue!(yout,l,[x,y,z],[1,2])
+		@fact yout[1] => roughly(myfun1(x,y,z),atol=1e-6)
+		@fact yout[2] => roughly(myfun2(x,y,z),atol=1e-6)
 	end
 	println(l)
 end

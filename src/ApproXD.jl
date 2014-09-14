@@ -27,6 +27,7 @@ module ApproXD
 	       FSpaceXD,
 	       getValue,
 	       setindex!,
+	       getValue!,
 	       getValue,
 	       hitmiss,
 	       resetCache!,

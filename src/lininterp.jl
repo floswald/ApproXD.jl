@@ -1,7 +1,5 @@
 
-#' ..py:function:: lininterp(v,g)
-#' Multidimensional Linear Interpolator with cache accelerator. Can take multiple functions to be approximated 
-#' on the same point
+
 type lininterp
 
 	d          :: Array{Int}    # number of points in each dimension
@@ -132,18 +130,23 @@ function getValue(l::lininterp,x::Vector{Float64})
 	end
 end
 
-function getValue(l::lininterp,x::Vector{Float64},which::Vector{Int})
+# method with preallocated output vector y
+# and index `which` indicating which functions to evaluate
+function getValue!(y::Vector{Float64},l::lininterp,x::Vector{Float64},which::Vector{Int})
 	if maximum(which) > l.nfunc
 		throw(ArgumentError("which contains a higher index than there are functions"))
+	end
+	if length(which) != length(y)
+		throw(ArgumentError("output y must be as long as `which` index"))
 	end
 	# only which get evaluated
 	l.ifunc = which
 	if l.n == 2
-		eval2D(l,x)
+		eval2D!(y,l,x)
 	elseif l.n == 3
-		eval3D(l,x)
+		eval3D!(y,l,x)
 	elseif l.n ==4
-		eval4D(l,x)
+		eval4D!(y,l,x)
 	else
 		warn("only up to 4D implemented so far")
 	end
@@ -274,6 +277,35 @@ function eval2D(l::lininterp,x::Array{Float64,1})
     return out
 end
 
+function eval2D!(y::Vector{Float64},l::lininterp,x::Array{Float64,1})
+
+	if length(x) != 2
+		throw(ArgumentError("x needs 2 elements: one for each D in 2D!"))
+	end
+	if l.n != 2
+		throw(ArgumentError("must supply a lininterp with 2D"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
+
+	# get the function values on the box
+	find2DVertices!(l)
+
+	# build up linear combinations
+	yi = 0
+	for i in l.ifunc
+		yi += 1
+		cc = (1.0-l.z[1])*(1.0-l.z[2]) * l.vertex[i][1] +   # v00
+			 (    l.z[1])*(1.0-l.z[2]) * l.vertex[i][2] +   # v10
+			 (1.0-l.z[1])*(    l.z[2]) * l.vertex[i][3] +   # v01
+	         (    l.z[1])*(    l.z[2]) * l.vertex[i][4]     # v11
+        y[yi] = cc
+    end
+    return nothing
+end
 
 
 # 3D evaluation
@@ -324,6 +356,34 @@ function eval3D(l::lininterp,x::Array{Float64,1})
 	return out
 end
 
+function eval3D!(y::Vector{Float64},l::lininterp,x::Array{Float64,1})
+
+	if length(x) != 3
+		throw(ArgumentError("x needs 3 elements: one for each D in 3D!"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
+	find3DVertices!(l)
+
+	# build up linear combinations
+	yi = 0
+	for i in l.ifunc
+		yi += 1
+		cc = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[i][1] +   # v000
+			 (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3]) * l.vertex[i][2] +   # v100
+			 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[i][3] +   # v010
+	         (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[i][4] +   # v001
+	         (    l.z[1])*(    l.z[2])*(1.0-l.z[3]) * l.vertex[i][5] +   # v110
+	         (    l.z[1])*(1.0-l.z[2])*(    l.z[3]) * l.vertex[i][6] +   # v101
+	         (1.0-l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[i][7] +   # v011
+	         (    l.z[1])*(    l.z[2])*(    l.z[3]) * l.vertex[i][8]     # v111
+        y[yi] = cc
+	end
+	return nothing
+end
 
 
 # 4D evaluation
@@ -390,6 +450,44 @@ function eval4D(l::lininterp,x::Array{Float64,1})
 	return out
 end
 
+function eval4D!(y::Vector{Float64},l::lininterp,x::Array{Float64,1})
+
+	if length(x) != 4
+		throw(ArgumentError("x needs 4 elements: one for each D in 4D!"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
+
+	# get the function values on the box
+	find4DVertices!(l)
+
+	# build up linear combinations
+	yi = 0
+	for i in l.ifunc
+		yi += 1
+		cc = (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][1]  +   # v0000
+			 (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][2]  +   # v1000
+			 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][3]  +   # v0100
+	         (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[i][4]  +   # v0010
+	         (1.0-l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[i][5]  +   # v0001
+	         (    l.z[1])*(    l.z[2])*(1.0-l.z[3])*(1.0-l.z[4]) * l.vertex[i][6]  +   # v1100
+	         (    l.z[1])*(1.0-l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[i][7]  +   # v1010
+	         (    l.z[1])*(1.0-l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[i][8]  +   # v1001
+		     (1.0-l.z[1])*(    l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[i][9]  +   # v0110
+			 (1.0-l.z[1])*(    l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[i][10] +   # v0101
+			 (1.0-l.z[1])*(1.0-l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[i][11] +   # v0011
+	         (    l.z[1])*(    l.z[2])*(    l.z[3])*(1.0-l.z[4]) * l.vertex[i][12] +   # v1110
+	         (    l.z[1])*(    l.z[2])*(1.0-l.z[3])*(    l.z[4]) * l.vertex[i][13] +   # v1101
+	         (    l.z[1])*(1.0-l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[i][14] +   # v1011
+	         (1.0-l.z[1])*(    l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[i][15] +   # v0111
+	         (    l.z[1])*(    l.z[2])*(    l.z[3])*(    l.z[4]) * l.vertex[i][16]     # v1111
+        y[yi] = cc
+	end
+	return nothing
+end
 
 
 
