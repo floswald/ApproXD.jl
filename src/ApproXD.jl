@@ -4,7 +4,6 @@
 module ApproXD
 
 	import Base.show, Base.convert
-	using PyPlot, ArrayViews
 
 	# load files
 	include("bspline.jl")
