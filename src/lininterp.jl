@@ -91,8 +91,8 @@ function getNextCachedVal(l::lininterp,i::Int)
 	l.grids[i][l.cache[i] + 1]
 end
 
-function setVals(l::lininterp,which::Int,v::Array)
-	if size(v) != d
+function setValue!(l::lininterp,which::Int,v::Array)
+	if size(v) != l.d
 		throw(ArgumentError("size(v) must be equal to size d"))
 	end
 	vals[which] = v
@@ -119,7 +119,9 @@ end
 function getValue(l::lininterp,x::Vector{Float64})
 	# make sure all get evaluated
 	l.ifunc = [1:l.nfunc]
-	if l.n == 2
+	if l.n == 1
+		eval1D(l,x)
+	elseif l.n == 2
 		eval2D(l,x)
 	elseif l.n == 3
 		eval3D(l,x)
@@ -141,7 +143,9 @@ function getValue!(y::Vector{Float64},l::lininterp,x::Vector{Float64},which::Vec
 	end
 	# only which get evaluated
 	l.ifunc = which
-	if l.n == 2
+	if l.n == 1
+		eval1D!(y,l,x)
+	elseif l.n == 2
 		eval2D!(y,l,x)
 	elseif l.n == 3
 		eval3D!(y,l,x)
@@ -235,6 +239,72 @@ function findBracket!(l::lininterp,x::Vector{Float64})
 end
 
 
+# 1D evaluation
+# =============
+
+function find1DVertices!(l::lininterp)
+	for i in l.ifunc
+		l.vertex[i][1] = l.vals[i][l.cache[1]   ]	# v0
+		l.vertex[i][2] = l.vals[i][l.cache[1] + 1]	# v1
+	end
+end
+
+function eval1D(l::lininterp,x::Vector{Float64})
+
+	if length(x) != 1
+		throw(ArgumentError("x needs 1 elements: one for each D in 2D!"))
+	end
+	if l.n != 1
+		throw(ArgumentError("must supply a lininterp with 1D"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
+
+	# get the function values on the box
+	find1DVertices!(l)
+
+	# build up linear combinations
+	out = Float64[]
+	cc = 0.0
+	for i in l.ifunc
+		cc = (1.0-l.z[1])* l.vertex[i][1] +   # v0
+			 (    l.z[1])* l.vertex[i][2]    # v1
+        push!(out,cc)
+    end
+    return out
+end
+
+function eval1D!(y::Vector{Float64},l::lininterp,x::Vector{Float64})
+
+	if length(x) != 1
+		throw(ArgumentError("x needs 1 elements: one for each D in 1D!"))
+	end
+	if l.n != 1
+		throw(ArgumentError("must supply a lininterp with 1D"))
+	end
+
+	# find in which bracket of grid values x is in.
+	# using cached values
+	# finds the relative position of x inside the bracket
+	findBracket!(l,x)
+
+	# get the function values on the box
+	find1DVertices!(l)
+
+	# build up linear combinations
+	yi = 0
+	for i in l.ifunc
+		yi += 1
+		cc = (1.0-l.z[1])* l.vertex[i][1] +   # v0
+			 (    l.z[1])* l.vertex[i][2]    # v1
+        y[yi] = cc
+    end
+    return nothing
+end
+
 # 2D evaluation
 # =============
 
@@ -246,6 +316,7 @@ function find2DVertices!(l::lininterp)
 		l.vertex[i][4] = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]  )]	# v11
 	end
 end
+
 
 function eval2D(l::lininterp,x::Array{Float64,1})
 

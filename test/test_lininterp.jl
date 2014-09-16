@@ -4,6 +4,38 @@ module test_lininterp
 
 using ApproXD, FactCheck
 
+
+facts("constructor for 1D lininterp on a single function") do
+
+	vs = rand(4)
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(2.0,3,4))
+
+	l = lininterp(vs,gs)
+
+	@fact ApproXD.getDims(l) => [4]
+	@fact l.n => 1
+	@fact l.nfunc => 1
+	@fact l.ifunc => [1]
+	@fact l.infs => zeros(1)
+	@fact l.sups => zeros(1)
+	@fact l.hits => 0
+	@fact l.miss => 0
+	@fact l.vals[1] => vs
+	@fact l.grids => gs
+	@fact ApproXD.getCache(l) => [1]
+
+	# errors
+	pop!(gs)   # missing grid
+	@fact_throws lininterp(vs,gs)   
+	push!(gs, linspace(-1,3.0,5)) 	# wrong length
+	@fact_throws lininterp(vs,gs)
+	pop!(gs)
+	push!(gs, [1.1,0,2,3]) 	# not sorted
+	@fact_throws lininterp(vs,gs)
+
+end
+
 facts("constructor for 2D lininterp on a single function") do
 
 	vs = rand(3,4)
@@ -155,6 +187,48 @@ facts("testing Cache functions") do
 
 
 end
+
+facts("testing findBracket!(x) for 1D") do
+
+	vs = rand(5)
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(-1,3.0,5))
+
+	l = lininterp(vs,gs)
+	@fact l.hascache => false
+
+	x = [2.8] 	# => brackets 4
+	ApproXD.findBracket!(l,x)
+
+	# brackets is index of lower bound of each bracket
+	brackets = [4]
+
+	@fact ApproXD.getCache(l) => brackets
+	@fact ApproXD.hitmiss(l) => (0,1)
+	@fact l.infs[1] => gs[1][brackets[1]]
+	@fact l.sups[1] => gs[1][brackets[1]+1]
+
+	@fact l.hascache => true
+	ApproXD.findBracket!(l,x)
+	@fact ApproXD.getCache(l) => brackets
+	@fact ApproXD.hitmiss(l) => (1,1)
+
+	# value x1 and x2 out of bounds
+	x = [3.8] 	# => brackets 4
+	ApproXD.findBracket!(l,x)
+
+	brackets = [4]
+	@fact ApproXD.getCache(l) => brackets
+	@fact ApproXD.hitmiss(l) => (1,2)
+	@fact l.infs[1] => gs[1][end-1]
+	@fact l.sups[1] => gs[1][end]
+
+	# side-effect: x is forced into bounds!
+	# may or may not be desirable.
+	@fact x[1] => l.sups[1]
+end
+
+
 
 facts("testing findBracket!(x) for 3D") do
 
@@ -609,6 +683,89 @@ facts("testing find4DVertices!(l) 2 functions") do
 	@fact l.vertex[2][14] => vs2[2,3,2,5]  # v1011
 	@fact l.vertex[2][15] => vs2[1,4,2,5]  # v0111
 	@fact l.vertex[2][16] => vs2[2,4,2,5]  # v1111
+end
+
+facts("testing getValue 1D") do
+
+	lbs = [1.0]
+	ubs = [3.0]
+
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],4))
+
+	myfun(i1) = 0.75*i1 
+	
+	vs = Float64[ myfun(i) for i in gs[1]]
+
+	l = lininterp(vs,gs)
+
+	# check value on bounds
+	@fact getValue(l,lbs)[1] => vs[1]
+	@fact getValue(l,ubs)[1] => vs[4]
+	@fact getValue(l,[5.0])[1] => vs[4]
+	@fact getValue(l,[1.0])[1]=> vs[1]
+
+	# check values out of bounds
+	@fact getValue(l,[-1.0])[1] => vs[1]
+	@fact getValue(l,[200.0])[1] => vs[4]
+	println(l)
+
+	# close to bounds
+	y=2.9
+	@fact getValue(l,[y])[1] - myfun(y) => roughly(0.0,atol=1e-6)
+	@fact getValue(l,[y])[1] - myfun(y) => roughly(0.0,atol=1e-6)
+
+
+	# check at random vals in interval
+	lbs = [1.0]
+	ubs = [33.0]
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],40))
+
+	vs = Float64[ myfun(i) for i in gs[1]]
+
+	l = lininterp(vs,gs)
+	for i in 1:30
+		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+		@fact getValue(l,[x])[1] => roughly(myfun(x),atol=1e-6)
+	end
+	println(l)
+end
+
+facts("testing getValue! 1D") do
+
+	lbs = [1.0]
+	ubs = [3.0]
+
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],4))
+
+	myfun(i1) = 0.75*i1 
+	
+	lbs = [1.0]
+	ubs = [33.0]
+	gs = Array{Float64,1}[]
+	push!(gs, linspace(lbs[1],ubs[1],40))
+
+	vs = Float64[ myfun(i) for i in gs[1]]
+
+	l = lininterp(vs,gs)
+	y = [0.0]
+	# check at increasing vals in interval
+	x = linspace(lbs[1],ubs[1],300)
+	for i in 1:length(x)
+		getValue!(y,l,[x[i]],[1])
+		@fact y[1] => roughly(myfun(x[i]),atol=1e-8)
+	end
+	println(l)
+	resetCache!(l)
+	# check at random vals in interval
+	for i in 1:30
+		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+		getValue!(y,l,[x],[1])
+		@fact y[1] => roughly(myfun(x),atol=1e-8)
+	end
+	println(l)
 end
 
 facts("testing getValue2D") do
