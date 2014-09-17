@@ -25,6 +25,7 @@ module ApproXD
 	       getTensorCoef,
 	       FSpaceXD,
 	       getValue,
+	       setValue,
 	       setindex!,
 	       getValue!,
 	       getValue,

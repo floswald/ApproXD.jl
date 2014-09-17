@@ -21,7 +21,12 @@ fun(x,y,z) = x^2 + y^(0.5) + (x-z)^2
 # what is fun(4.5,pi,8.01) ?
 ```
 
-The package aims in particular at a fast solution to this problem. The focus is to get an interpolated point from a high-dimensional object.
+
+
+The package aims in particular at a fast solution to this problem. It provides two different approximation methods:
+
+1. Tensor product of univariate Bsplines of arbitrary degree
+2. 
 
 At the moment it contains kronecker products of univariate spline basis functions (tested up to 10D), where the approximating coefficients are computed in an efficient manner according to the algorithm outlined in [1]. 
 

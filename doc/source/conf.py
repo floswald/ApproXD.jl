@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# MOpt.jl documentation build configuration file, created by
-# sphinx-quickstart on Thu Jun 19 17:06:35 2014.
+# ApproXD documentation build configuration file, created by
+# sphinx-quickstart on Wed Sep 17 11:03:28 2014.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -33,7 +33,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['ntemplates']
+templates_path = ['.templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -45,8 +45,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'MOpt.jl'
-copyright = u'2014, Forian Oswald and Thibaut Lamadon'
+project = u'ApproXD'
+copyright = u'2014, Florian Oswald'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -129,7 +129,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['nstatic']
+html_static_path = ['.static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -178,7 +178,7 @@ html_static_path = ['nstatic']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'MOptjldoc'
+htmlhelp_basename = 'ApproXDdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -198,8 +198,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'MOptjl.tex', u'MOpt.jl Documentation',
-   u'Forian Oswald and Thibaut Lamadon', 'manual'),
+  ('index', 'ApproXD.tex', u'ApproXD Documentation',
+   u'Florian Oswald', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -228,8 +228,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'moptjl', u'MOpt.jl Documentation',
-     [u'Forian Oswald and Thibaut Lamadon'], 1)
+    ('index', 'approxd', u'ApproXD Documentation',
+     [u'Florian Oswald'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -242,8 +242,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'MOptjl', u'MOpt.jl Documentation',
-   u'Forian Oswald and Thibaut Lamadon', 'MOptjl', 'One line description of project.',
+  ('index', 'ApproXD', u'ApproXD Documentation',
+   u'Florian Oswald', 'ApproXD', 'One line description of project.',
    'Miscellaneous'),
 ]
 
