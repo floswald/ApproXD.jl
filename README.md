@@ -22,15 +22,12 @@ fun(x,y,z) = x^2 + y^(0.5) + (x-z)^2
 ```
 
 
+Documentation is started to [being put together on readthedocs](http://approxdjl.readthedocs.org/en/latest/index.html). The best way to get started is currently to look at the unit tests at the moment. sorry about that.
 
-The package aims in particular at a fast solution to this problem. It provides two different approximation methods:
 
-1. Tensor product of univariate Bsplines of arbitrary degree
-2. 
+The package contains kronecker products of univariate spline basis functions (tested up to 10D), where the approximating coefficients are computed in an efficient manner according to the algorithm outlined in [1]. 
 
-At the moment it contains kronecker products of univariate spline basis functions (tested up to 10D), where the approximating coefficients are computed in an efficient manner according to the algorithm outlined in [1]. 
-
-Next to that the package contains a high performance linear interpolator with a cashing mechanism similar to what you get from a [GSL interpolation accelerator](https://www.gnu.org/software/gsl/manual/html_node/Index-Look_002dup-and-Acceleration.html). This supports only 3D up to now, but extension is in progress.
+Next to that the package contains a high performance linear interpolator with a cashing mechanism similar to what you get from a [GSL interpolation accelerator](https://www.gnu.org/software/gsl/manual/html_node/Index-Look_002dup-and-Acceleration.html). This supports up to 4D for now.
 
 [1] C. De Boor. Efficient computer manipulation of tensor products. ACM Transactions on Mathematical Software (TOMS), 5(2):173–182, 1979.
 
