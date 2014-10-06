@@ -27,7 +27,7 @@ Documentation is started to [being put together on readthedocs](http://approxdjl
 
 The package contains kronecker products of univariate spline basis functions (tested up to 10D), where the approximating coefficients are computed in an efficient manner according to the algorithm outlined in [1]. 
 
-Next to that the package contains a high performance linear interpolator with a cashing mechanism similar to what you get from a [GSL interpolation accelerator](https://www.gnu.org/software/gsl/manual/html_node/Index-Look_002dup-and-Acceleration.html). This supports up to 4D for now.
+Next to that the package contains a high performance linear interpolator with a caching mechanism similar to what you get from a [GSL interpolation accelerator](https://www.gnu.org/software/gsl/manual/html_node/Index-Look_002dup-and-Acceleration.html). This supports up to 4D for now.
 
 [1] C. De Boor. Efficient computer manipulation of tensor products. ACM Transactions on Mathematical Software (TOMS), 5(2):173–182, 1979.
 
