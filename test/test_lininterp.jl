@@ -734,12 +734,6 @@ end
 
 facts("testing getValue! 1D") do
 
-	lbs = [1.0]
-	ubs = [3.0]
-
-	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],4))
-
 	myfun(i1) = 0.75*i1 
 	
 	lbs = [1.0]
@@ -762,6 +756,50 @@ facts("testing getValue! 1D") do
 	# check at random vals in interval
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+		getValue!(y,l,[x],[1])
+		@fact y[1] => roughly(myfun(x),atol=1e-8)
+	end
+	println(l)
+end
+
+
+
+facts("testing getValue! 1D on irregularly spaced grid") do
+
+	lb = 1.0
+	ub = 3.0
+	n = 40
+
+	xg = zeros(n)
+	xg[1] = log(lb + 1) 
+	xg[n] = log(ub + 1) 
+	xg    = linspace(xg[1],xg[n],n)
+	xg    = exp(xg) - 1  
+
+	gs = Array{Float64,1}[]
+	push!(gs, xg)
+
+	# I'm using a linear function here: the more non-linear your function,
+	# the worse a linear approximation will perform - this is obvious.
+	myfun(i1) = 0.75*i1 
+	
+
+	vs = Float64[ myfun(i) for i in gs[1]]
+
+	l = lininterp(vs,gs)
+	y = [0.0]
+	# check at increasing vals in interval
+	x = linspace(lb,ub,300)
+	for i in 1:length(x)
+		getValue!(y,l,[x[i]],[1])
+		@fact y[1] => roughly(myfun(x[i]),atol=1e-8)
+		# println(y[1] - myfun(x[i]))
+	end
+	println(l)
+	resetCache!(l)
+	# check at random vals in interval
+	for i in 1:30
+		x = rand() * (ub-lb) + lb
 		getValue!(y,l,[x],[1])
 		@fact y[1] => roughly(myfun(x),atol=1e-8)
 	end
