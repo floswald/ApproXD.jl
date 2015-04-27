@@ -63,13 +63,13 @@ facts("testing computation of coefficients") do
 	degs = [3,2,1]
 
 	# implies a number of knots for each spline
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:3}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:3]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:3}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:3]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:3}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:3]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -152,13 +152,13 @@ facts("testing 2D tensorProduct evaluating off grid") do
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -229,13 +229,13 @@ facts("testing 3D tensorProduct approximations") do
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -309,13 +309,13 @@ facts("testing 4D tensorProduct approximations") do
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -391,13 +391,13 @@ facts("testing getTensorCoef performance on 4D") do
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -458,13 +458,13 @@ end
 
 # 	# implies a number of knots for each spline
 # 	# remember the restriction that nknots == ncoefs
-# 	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+# 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims}
 
 # 	# eval points
-# 	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+# 	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
 
 # 	# set up ApproXD
-# 	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+# 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
 
 # 	# set of basis functions
 # 	d = Dict{Integer,Array{Float64,2}}()
@@ -527,13 +527,13 @@ facts("testing getTensorCoef performance on 5D") do
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -598,13 +598,13 @@ facts("testing getTensorCoef performance on 10D") do
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()

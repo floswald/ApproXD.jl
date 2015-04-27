@@ -11,7 +11,10 @@ ApproXD.jl is a Julia package for function approximation in high dimensional spa
 .. math::
 	f(x), x \in R^d
 
-is known on a finite set of points :math:`X \subset R^d`, but not in between. The task is to provide an interpolation (*connecting the dots*) that makes evaluation off the grid :math:`X` possible. There are **two supported ways to make the interpolation**, Tensor Product of Spline Basis functions and Linear Interpolator.
+is known on a finite set of points :math:`X \subset R^d`, but not in between. The task is to provide an interpolation (*connecting the dots*) that makes evaluation off the grid :math:`X` possible. There are **two supported ways** to make the interpolation:
+	
+	1. Evaluate the Tensor Product of Spline Basis functions and 
+	2. Linear Interpolation
 
 Contents:
 

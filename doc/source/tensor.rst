@@ -20,16 +20,18 @@ Methods for ``FSpaceXD``
 ------------------------
 
 .. function:: getValue(x,fspace)
+    :noindex:
 
     ``x``: a vector of points, ``length(x)=ndim``
 
     ``fspace``: an ``FSpaceXD`` object
 
 
+
 ``FSpaceXD`` Useage Example
 ----------------------------
 
-the example uses to the :ref:`bspline-label` type.
+the example uses the :ref:`bspline-label` type.
 
 .. code-block:: julia
 
@@ -52,10 +54,10 @@ the example uses to the :ref:`bspline-label` type.
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = Dict{Integer,BSpline}()
