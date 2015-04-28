@@ -21,7 +21,6 @@ Constructors
 .. function:: lininterp(v,g)
 
 	:param v: 	an ``Array{Float64,nD}`` of ``n`` function evaluations. ``n=n1*n2*...nD`` for ``nD`` dimensions. 
-
 	:param g: 	an ``Array{Vector{Float64}}``, i.e. a collection of one-dimensional grids. can be irregularly spaced, but must be sorted ascendingly.
 
 	For example, 
@@ -36,9 +35,7 @@ Constructors
 .. function:: lininterp(v1,v2,g)
 
 	:param v1: an ``Array{Float64,nD}`` of ``n`` function evaluations for function ``f1``. ``n=n1*n2*...nD`` for ``nD`` dimensions.
-
 	:param v2: an ``Array{Float64,nD}`` of ``n`` function evaluations for function ``f2``. ``n=n1*n2*...nD`` for ``nD`` dimensions.
-
 	:param g: 	an ``Array{Vector{Float64}}``, i.e. a collection of one-dimensional grids. can be irregularly spaced, but must be sorted ascendingly.
 
 	Note that ``v1,v2`` are defined on the same grid ``g``.
@@ -56,7 +53,6 @@ Constructors
 .. function:: lininterp(v,g)
 
 	:param v: a collection of multiple function evaluations defined on the same grid, i.e. an ``Array{Array{Float64,nD}}``
-
 	:param g: 	an ``Array{Vector{Float64}}``, i.e. a collection of one-dimensional grids. can be irregularly spaced, but must be sorted ascendingly.
 
 	Note that all ``v`` are defined on the same grid ``g``.
@@ -81,7 +77,6 @@ Methods
 .. function:: getValue(L,point)
 
 	:param L: 	a ``lininterp`` object
-
 	:param point: 	coordinates of a point, a vector
 
 	returns the approximation for all functions stored in ``L`` at ``point``.
@@ -89,11 +84,8 @@ Methods
 .. function:: getValue!(y,L,point,which)
 
 	:param y: 	prealloacted return value. vector which ``length(which)``
-
 	:param L: 	a ``lininterp`` object
-
 	:param point: coordinates of a point (a vector)
-
 	:param which: integer index of which function to be evaluated
 
 	if there are multiple functions stored in ``l``, defined on the same grids, you can select ``which`` one will be evaluated on ``point`` by setting ``which``.
