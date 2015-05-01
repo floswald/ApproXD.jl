@@ -1,17 +1,17 @@
 
 
-module test_lininterp
+module test_Lininterp
 
 using ApproXD, FactCheck
 
 
-facts("constructor for 1D lininterp on a single function") do
+facts("constructor for 1D Lininterp on a single function") do
 
 	vs = rand(4)
 	gs = Array{Float64,1}[]
 	push!(gs, linspace(2.0,3,4))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	@fact ApproXD.getDims(l) => [4]
 	@fact l.n => 1
@@ -27,23 +27,23 @@ facts("constructor for 1D lininterp on a single function") do
 
 	# errors
 	pop!(gs)   # missing grid
-	@fact_throws lininterp(vs,gs)   
+	@fact_throws Lininterp(vs,gs)   
 	push!(gs, linspace(-1,3.0,5)) 	# wrong length
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3]) 	# not sorted
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 
 end
 
-facts("constructor for 2D lininterp on a single function") do
+facts("constructor for 2D Lininterp on a single function") do
 
 	vs = rand(3,4)
 	gs = Array{Float64,1}[]
 	push!(gs, linspace(1.0,3,3))
 	push!(gs, linspace(2.0,3,4))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	@fact ApproXD.getDims(l) => [3,4]
 	@fact l.n => 2
@@ -59,16 +59,16 @@ facts("constructor for 2D lininterp on a single function") do
 
 	# errors
 	pop!(gs)   # missing grid
-	@fact_throws lininterp(vs,gs)   
+	@fact_throws Lininterp(vs,gs)   
 	push!(gs, linspace(-1,3.0,5)) 	# wrong length
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3]) 	# not sorted
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 
 end
 
-facts("constructor for 2D lininterp on two functions") do
+facts("constructor for 2D Lininterp on two functions") do
 
 	vs1 = rand(3,4)
 	vs2 = rand(3,4)
@@ -76,7 +76,7 @@ facts("constructor for 2D lininterp on two functions") do
 	push!(gs, linspace(1.0,3,3))
 	push!(gs, linspace(2.0,3,4))
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 
 	@fact ApproXD.getDims(l) => [3,4]
 	@fact l.n => 2
@@ -93,16 +93,16 @@ facts("constructor for 2D lininterp on two functions") do
 
 	# errors
 	pop!(gs)   # missing grid
-	@fact_throws lininterp(vs,gs)   
+	@fact_throws Lininterp(vs,gs)   
 	push!(gs, linspace(-1,3.0,5)) 	# wrong length
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3]) 	# not sorted
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 
 end
 
-facts("constructor for 3D lininterp") do
+facts("constructor for 3D Lininterp") do
 
 	vs = rand(3,4,5)
 	gs = Array{Float64,1}[]
@@ -110,7 +110,7 @@ facts("constructor for 3D lininterp") do
 	push!(gs, linspace(2.0,3,4))
 	push!(gs, linspace(-1,3.0,5))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	@fact ApproXD.getDims(l) => [3,4,5]
 	@fact l.n => 3
@@ -125,16 +125,16 @@ facts("constructor for 3D lininterp") do
 
 	# errors
 	pop!(gs)   # missing grid
-	@fact_throws lininterp(vs,gs)   
+	@fact_throws Lininterp(vs,gs)   
 	push!(gs, linspace(-1,3.0,4)) 	# wrong length
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3,4]) 	# not sorted
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 
 end
 
-facts("constructor for 4D lininterp") do
+facts("constructor for 4D Lininterp") do
 
 	vs = rand(3,4,5,7)
 	gs = Array{Float64,1}[]
@@ -143,7 +143,7 @@ facts("constructor for 4D lininterp") do
 	push!(gs, linspace(-1,3.0,5))
 	push!(gs, linspace(-0.1,4.8,7))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	@fact ApproXD.getDims(l) => [3,4,5,7]
 	@fact l.n => 4
@@ -157,12 +157,12 @@ facts("constructor for 4D lininterp") do
 
 	# errors
 	pop!(gs)   # missing grid
-	@fact_throws lininterp(vs,gs)   
+	@fact_throws Lininterp(vs,gs)   
 	push!(gs, linspace(-1,3.0,4)) 	# wrong length
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3,4,5,6]) 	# not sorted
-	@fact_throws lininterp(vs,gs)
+	@fact_throws Lininterp(vs,gs)
 
 end
 
@@ -175,7 +175,7 @@ facts("testing Cache functions") do
 	push!(gs, linspace(2.0,3,4))
 	push!(gs, linspace(-1,3.0,5))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	myc = [2,1,3]
 	l.cache = myc	# manually set a cache
 
@@ -194,7 +194,7 @@ facts("testing findBracket!(x) for 1D") do
 	gs = Array{Float64,1}[]
 	push!(gs, linspace(-1,3.0,5))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	@fact l.hascache => false
 
 	x = [2.8] 	# => brackets 4
@@ -238,7 +238,7 @@ facts("testing findBracket!(x) for 3D") do
 	push!(gs, linspace(2.0,6.0,4))
 	push!(gs, linspace(-1,3.0,5))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	@fact l.hascache => false
 
 	x = [1.1,3.5,2.8] 	# => brackets 1,2,4
@@ -288,7 +288,7 @@ facts("testing findBracket!(x) for 4D") do
 	push!(gs, linspace(-1,3.0,5))
 	push!(gs, linspace(-2,5.0,7))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	@fact l.hascache => false
 
 	x = [1.1,3.5,2.8,3.9] 	# => brackets 1,2,4,6
@@ -343,7 +343,7 @@ facts("testing find3DVertices!(l) for 1 function") do
 	push!(gs, linspace(2.0,6.0,4))
 	push!(gs, linspace(-1,3.0,5))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	x = [1.1,3.5,2.8] 	# => brackets 1,2,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,3)
@@ -399,7 +399,7 @@ facts("testing find3DVertices!(l) for 2 functions") do
 	push!(gs, linspace(2.0,6.0,4))
 	push!(gs, linspace(-1,3.0,5))
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 	x = [1.1,3.5,2.8] 	# => brackets 1,2,4
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,3)
@@ -484,7 +484,7 @@ facts("testing find4DVertices!(l) single function") do
 	push!(gs, linspace(-1,3.0,5))
 	push!(gs, linspace(-2,5.0,7))
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	x = [1.1,3.5,2.8,3.9] 	# => brackets 1,2,4,6
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,4)
@@ -564,7 +564,7 @@ facts("testing find4DVertices!(l) 2 functions") do
 	push!(gs, linspace(-1,3.0,5))
 	push!(gs, linspace(-2,5.0,7))
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 	x = [1.1,3.5,2.8,3.9] 	# => brackets 1,2,4,6
 	ApproXD.findBracket!(l,x)
 	@fact ApproXD.hitmiss(l) => (0,4)
@@ -697,7 +697,7 @@ facts("testing getValue 1D") do
 	
 	vs = Float64[ myfun(i) for i in gs[1]]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	# check value on bounds
 	@fact getValue(l,lbs)[1] => vs[1]
@@ -724,7 +724,7 @@ facts("testing getValue 1D") do
 
 	vs = Float64[ myfun(i) for i in gs[1]]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
 		@fact getValue(l,[x])[1] => roughly(myfun(x),atol=1e-6)
@@ -743,7 +743,7 @@ facts("testing getValue! 1D") do
 
 	vs = Float64[ myfun(i) for i in gs[1]]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	y = [0.0]
 	# check at increasing vals in interval
 	x = linspace(lbs[1],ubs[1],300)
@@ -786,7 +786,7 @@ facts("testing getValue! 1D on irregularly spaced grid") do
 
 	vs = Float64[ myfun(i) for i in gs[1]]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	y = [0.0]
 	# check at increasing vals in interval
 	x = linspace(lb,ub,300)
@@ -819,7 +819,7 @@ facts("testing getValue2D") do
 	
 	vs = Float64[ myfun(i,j) for i in gs[1], j in gs[2]]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	# check value on bounds
 	@fact getValue(l,lbs)[1] => vs[1,1]
@@ -857,7 +857,7 @@ facts("testing getValue2D") do
 
 	vs = Float64[ myfun(i,j) for i in gs[1], j in gs[2]]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
 		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
@@ -883,7 +883,7 @@ facts("testing getValue3D") do
 	
 	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	# check value on bounds
 	@fact getValue(l,lbs)[1] => vs[1,1,1]
@@ -924,7 +924,7 @@ facts("testing getValue3D") do
 
 	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
 		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
@@ -951,7 +951,7 @@ facts("testing getValue3D on 2 functions") do
 	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 
 	# check value on bounds
 	@fact getValue(l,lbs) .- [vs1[1,1,1],vs2[1,1,1]] => zeros(2)
@@ -1001,7 +1001,7 @@ facts("testing getValue3D on 2 functions") do
 	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
 		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
@@ -1028,7 +1028,7 @@ facts("testing getValue! 3D on 2 functions with ifunc switch") do
 	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 
 	@fact_throws getValue!(l,lbs,[1,2,3])
 
@@ -1098,7 +1098,7 @@ facts("testing getValue! 3D on 2 functions with ifunc switch") do
 	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs1,vs2,gs)
+	l = Lininterp(vs1,vs2,gs)
 	yout = [0.0,0.0]
 	for i in 1:30
 		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
@@ -1125,7 +1125,7 @@ facts("testing getValue hit/miss for 3D") do
 	
 	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 	@fact hitmiss(l) => (0,0)
 	
 	x=1.99
@@ -1172,7 +1172,7 @@ facts("testing getValue4D on 3 functions") do
 	push!(vs,vs2)
 	push!(vs,vs3)
 
-	l = lininterp(vs,gs)
+	l = Lininterp(vs,gs)
 
 	# check value on bounds
 	v = getValue(l,lbs)

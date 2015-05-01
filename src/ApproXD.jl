@@ -17,7 +17,7 @@ module ApproXD
 	end
 
 	export BSpline,
-		   lininterp,
+		   Lininterp,
 	       show,
 	       getBasis,
 	       getNumCoefs,

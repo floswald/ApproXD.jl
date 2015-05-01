@@ -26,7 +26,7 @@ type FSpaceXD
 	end
 end
 
-function getValue(x::Array{Float64,1},fx::FSpaceXD)
+function getValue(fx::FSpaceXD,x::Array{Float64,1})
 
 	# 0) check length of x
 	if length(x) != fx.ndim

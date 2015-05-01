@@ -65,9 +65,9 @@ facts("testing FSpaceXD") do
 	rval2 = lb[2] + 0.23
 	rval3 = lb[3] + 0.111
 	rval4 = lb[4] + 0.099
-	println("approx value = $(getValue([rval1,rval2,rval3,rval4],fx))")
+	println("approx value = $(getValue(fx,[rval1,rval2,rval3,rval4]))")
 	println("true value = $(f(rval1,rval2,rval3,rval4))")
-	@fact getValue([rval1,rval2,rval3,rval4],fx) => roughly(f(rval1,rval2,rval3,rval4),atol=3e-3)
+	@fact getValue(fx,[rval1,rval2,rval3,rval4]) => roughly(f(rval1,rval2,rval3,rval4),atol=3e-3)
 
 
 end

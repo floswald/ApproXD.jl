@@ -9,7 +9,7 @@ home = ENV["HOME"]
 cd("$home/git/ApproXD.jl")
 
 include("src/ApproXD.jl")
-include("test/test_lininterp.jl")
+include("test/test_Lininterp.jl")
 
 # run individual tests
 include("test/test_basics.jl")
@@ -34,7 +34,7 @@ myfun(i1,i2,i3) = i1 + 2*i2 + 3*i3
 
 vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
-l = ApproXD.lininterp(vs,gs)
+l = ApproXD.Lininterp(vs,gs)
 
 function pfun()
 	for i in 1:1000000

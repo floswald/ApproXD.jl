@@ -1,6 +1,6 @@
 
 
-type lininterp
+type Lininterp
 
 	d          :: Array{Int}    # number of points in each dimension
 	n          :: Int 	        # number  of dims
@@ -18,7 +18,7 @@ type lininterp
 	vertex     :: Array{Array{Float64}}  # arrays with current vertices
 
 	# constructor for multiple functions to approximate
-	function lininterp(v::Array{Array{Float64}},g::Array{Vector{Float64}})
+	function Lininterp(v::Array{Array{Float64}},g::Array{Vector{Float64}})
 		d = [size(v[1])...]
 		if !all(map(z->size(z)==size(v[1]),v))
 			throw(ArgumentError("all arrays in v must have the same shape"))
@@ -52,46 +52,46 @@ end
 
 # additional outer constructors
 # constructor for single function
-function lininterp(v::Array{Float64},g::Array{Vector{Float64}})
+function Lininterp(v::Array{Float64},g::Array{Vector{Float64}})
 	v1 = Array{Float64}[]
 	push!(v1,v)
-	lininterp(v1,g)
+	Lininterp(v1,g)
 end
 # constructor for two functions
-function lininterp(v1::Array{Float64},v2::Array{Float64},g::Array{Vector{Float64}})
+function Lininterp(v1::Array{Float64},v2::Array{Float64},g::Array{Vector{Float64}})
 	v = Array{Float64}[]
 	push!(v,v1)
 	push!(v,v2)
-	lininterp(v,g)
+	Lininterp(v,g)
 end
 
 
 # general utility methods
 # =======================
 
-getDims(l::lininterp) = l.d 
-getGrids(l::lininterp) =  l.grids 
-function resetCache!(l::lininterp) 
+getDims(l::Lininterp) = l.d 
+getGrids(l::Lininterp) =  l.grids 
+function resetCache!(l::Lininterp) 
 	fill!(l.cache,0)
 	l.hits = 0
 	l.miss = 0
 	l.hascache=false
 	return nothing
 end
-function getCache(l::lininterp)
+function getCache(l::Lininterp)
 	l.cache
 end
-function getCache(l::lininterp,i::Int)
+function getCache(l::Lininterp,i::Int)
 	l.cache[i]
 end
-function getCachedVal(l::lininterp,i::Int)
+function getCachedVal(l::Lininterp,i::Int)
 	l.grids[i][l.cache[i]]
 end
-function getNextCachedVal(l::lininterp,i::Int)
+function getNextCachedVal(l::Lininterp,i::Int)
 	l.grids[i][l.cache[i] + 1]
 end
 
-function setValue!(l::lininterp,which::Int,v::Array)
+function setValue!(l::Lininterp,which::Int,v::Array)
 	if size(v) != l.d
 		throw(ArgumentError("size(v) must be equal to size d"))
 	end
@@ -99,7 +99,7 @@ function setValue!(l::lininterp,which::Int,v::Array)
 	return nothing
 end
 
-function setGrid!(l::lininterp,i::Int,g::Vector{Float64})
+function setGrid!(l::Lininterp,i::Int,g::Vector{Float64})
 	if length(g) != l.d[i]
 		throw(ArgumentError("new grid g incompatible with dim $i = $(l.d[i])"))
 	end
@@ -111,13 +111,29 @@ function setGrid!(l::lininterp,i::Int,g::Vector{Float64})
 end
 
 
-function hitmiss(l::lininterp)
+function hitmiss(l::Lininterp)
 	return (l.hits,l.miss)
 end
 
 
-function getValue(l::lininterp,x::Vector{Float64})
+function getValue(l::Lininterp,x::Vector{Float64})
 	# make sure all get evaluated
+	l.ifunc = [1:l.nfunc]
+	if l.n == 1
+		eval1D(l,x)
+	elseif l.n == 2
+		eval2D(l,x)
+	elseif l.n == 3
+		eval3D(l,x)
+	elseif l.n ==4
+		eval4D(l,x)
+	else
+		warn("only up to 4D implemented so far")
+	end
+end
+function getValue(l::Lininterp,y::Float64)
+	# make sure all get evaluated
+	x = [y]
 	l.ifunc = [1:l.nfunc]
 	if l.n == 1
 		eval1D(l,x)
@@ -134,7 +150,7 @@ end
 
 # method with preallocated output vector y
 # and index `which` indicating which functions to evaluate
-function getValue!(y::Vector{Float64},l::lininterp,x::Vector{Float64},which::Vector{Int})
+function getValue!(y::Vector{Float64},l::Lininterp,x::Vector{Float64},which::Vector{Int})
 	if maximum(which) > l.nfunc
 		throw(ArgumentError("which contains a higher index than there are functions"))
 	end
@@ -165,7 +181,7 @@ end
 # 1. remembers last evaluation, and corresponding locations in grid
 # 2. finds the bracket of grid values x in is
 # 3. finds position of x in the bracket
-function findBracket!(l::lininterp,x::Vector{Float64})
+function findBracket!(l::Lininterp,x::Vector{Float64})
 
 	# if does not have active cache, search entire interval
 	if !l.hascache
@@ -242,20 +258,20 @@ end
 # 1D evaluation
 # =============
 
-function find1DVertices!(l::lininterp)
+function find1DVertices!(l::Lininterp)
 	for i in l.ifunc
 		l.vertex[i][1] = l.vals[i][l.cache[1]   ]	# v0
 		l.vertex[i][2] = l.vals[i][l.cache[1] + 1]	# v1
 	end
 end
 
-function eval1D(l::lininterp,x::Vector{Float64})
+function eval1D(l::Lininterp,x::Vector{Float64})
 
 	if length(x) != 1
 		throw(ArgumentError("x needs 1 elements: one for each D in 2D!"))
 	end
 	if l.n != 1
-		throw(ArgumentError("must supply a lininterp with 1D"))
+		throw(ArgumentError("must supply a Lininterp with 1D"))
 	end
 
 	# find in which bracket of grid values x is in.
@@ -277,13 +293,13 @@ function eval1D(l::lininterp,x::Vector{Float64})
     return out
 end
 
-function eval1D!(y::Vector{Float64},l::lininterp,x::Vector{Float64})
+function eval1D!(y::Vector{Float64},l::Lininterp,x::Vector{Float64})
 
 	if length(x) != 1
 		throw(ArgumentError("x needs 1 elements: one for each D in 1D!"))
 	end
 	if l.n != 1
-		throw(ArgumentError("must supply a lininterp with 1D"))
+		throw(ArgumentError("must supply a Lininterp with 1D"))
 	end
 
 	# find in which bracket of grid values x is in.
@@ -308,7 +324,7 @@ end
 # 2D evaluation
 # =============
 
-function find2DVertices!(l::lininterp)
+function find2DVertices!(l::Lininterp)
 	for i in l.ifunc
 		l.vertex[i][1] = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]-1)]	# v00
 		l.vertex[i][2] = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]-1)]	# v10
@@ -318,13 +334,13 @@ function find2DVertices!(l::lininterp)
 end
 
 
-function eval2D(l::lininterp,x::Array{Float64,1})
+function eval2D(l::Lininterp,x::Array{Float64,1})
 
 	if length(x) != 2
 		throw(ArgumentError("x needs 2 elements: one for each D in 2D!"))
 	end
 	if l.n != 2
-		throw(ArgumentError("must supply a lininterp with 2D"))
+		throw(ArgumentError("must supply a Lininterp with 2D"))
 	end
 
 	# find in which bracket of grid values x is in.
@@ -348,13 +364,13 @@ function eval2D(l::lininterp,x::Array{Float64,1})
     return out
 end
 
-function eval2D!(y::Vector{Float64},l::lininterp,x::Array{Float64,1})
+function eval2D!(y::Vector{Float64},l::Lininterp,x::Array{Float64,1})
 
 	if length(x) != 2
 		throw(ArgumentError("x needs 2 elements: one for each D in 2D!"))
 	end
 	if l.n != 2
-		throw(ArgumentError("must supply a lininterp with 2D"))
+		throw(ArgumentError("must supply a Lininterp with 2D"))
 	end
 
 	# find in which bracket of grid values x is in.
@@ -385,7 +401,7 @@ end
 
 # finds the function values at cartesian grid of indices
 # xinf, xsup, yinf, ysup, zinf, zsup
-function find3DVertices!(l::lininterp)
+function find3DVertices!(l::Lininterp)
 	for i in l.ifunc
 		l.vertex[i][1] = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*(l.cache[3]-1))]	# v000
 		l.vertex[i][2] = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*(l.cache[3]-1))]	# v100
@@ -398,7 +414,7 @@ function find3DVertices!(l::lininterp)
 	end
 end
 
-function eval3D(l::lininterp,x::Array{Float64,1})
+function eval3D(l::Lininterp,x::Array{Float64,1})
 
 	if length(x) != 3
 		throw(ArgumentError("x needs 3 elements: one for each D in 3D!"))
@@ -427,7 +443,7 @@ function eval3D(l::lininterp,x::Array{Float64,1})
 	return out
 end
 
-function eval3D!(y::Vector{Float64},l::lininterp,x::Array{Float64,1})
+function eval3D!(y::Vector{Float64},l::Lininterp,x::Array{Float64,1})
 
 	if length(x) != 3
 		throw(ArgumentError("x needs 3 elements: one for each D in 3D!"))
@@ -460,7 +476,7 @@ end
 # 4D evaluation
 # =============
 
-function find4DVertices!(l::lininterp)
+function find4DVertices!(l::Lininterp)
 	for i in l.ifunc
 		l.vertex[i][1]  = l.vals[i][l.cache[1] +     l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v0000
 		l.vertex[i][2]  = l.vals[i][l.cache[1] + 1 + l.d[1]*(l.cache[2]-1 + l.d[2]*((l.cache[3]-1) + l.d[3]*(l.cache[4]-1)))]	# v1000
@@ -482,7 +498,7 @@ function find4DVertices!(l::lininterp)
 end
 
 
-function eval4D(l::lininterp,x::Array{Float64,1})
+function eval4D(l::Lininterp,x::Array{Float64,1})
 
 	if length(x) != 4
 		throw(ArgumentError("x needs 4 elements: one for each D in 4D!"))
@@ -521,7 +537,7 @@ function eval4D(l::lininterp,x::Array{Float64,1})
 	return out
 end
 
-function eval4D!(y::Vector{Float64},l::lininterp,x::Array{Float64,1})
+function eval4D!(y::Vector{Float64},l::Lininterp,x::Array{Float64,1})
 
 	if length(x) != 4
 		throw(ArgumentError("x needs 4 elements: one for each D in 4D!"))
@@ -562,7 +578,7 @@ end
 
 
 
-function show(io::IO, l::lininterp)
+function show(io::IO, l::Lininterp)
 	print(io,"linear interpolation object\n")
 	print(io,"dimensions: $(l.d)\n")
 	print(io,"approximates $(l.nfunc) functions at given point\n")

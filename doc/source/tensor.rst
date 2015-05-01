@@ -19,12 +19,12 @@ Construction of ``FSpaceXD``
 Methods for ``FSpaceXD``
 ------------------------
 
-.. function:: getValue(x,fspace)
+.. function:: getValue(fspace,x)
     :noindex:
 
-    ``x``: a vector of points, ``length(x)=ndim``
-
     ``fspace``: an ``FSpaceXD`` object
+
+    ``x``: a vector of points, ``length(x)=ndim``
 
 
 
@@ -96,7 +96,7 @@ the example uses the :ref:`bspline-label` type.
 	rval2 = lb[2] + 0.23
 	rval3 = lb[3] + 0.111
 	rval4 = lb[4] + 0.099
-	println("approx value = $(getValue([rval1,rval2,rval3,rval4],fx))")
+	println("approx value = $(getValue(fx,[rval1,rval2,rval3,rval4]))")
 	println("true value = $(f(rval1,rval2,rval3,rval4))")
 	
 
