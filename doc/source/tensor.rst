@@ -114,6 +114,8 @@ The main features of this implementation are
 For a point of interest :math:`x \in R^d`, form the tensor product of univariate Bsplines of arbitrary degree ``k`` on each grid dimension and estimate a coefficient vector :math:`c` by solving the following system:
 
 .. math::
+	\hat{f}(X_1,X_2,\dots,X_d) &= \Phi(X_1,X_2,\dots,X_d)  c   , \text{where}\\
+	\Phi(X_1,X_2,\dots,X_d) &= B_1(X_1) \otimes B_2(X_2) \otimes \dots \otimes B_d(X_d)  \\
 	c &= \Phi(X_1,X_2,\dots,X_d)^{-1} f(X) \\
 	X_1 &= \{x_{11},x_{12},\dots,x_{1n(1)} \}\\
 	\dots \\
