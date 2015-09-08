@@ -25,7 +25,7 @@ type Lininterp
 		end
 		n = length(d)
 		nfunc = length(v)
-		ifunc = [1:nfunc]
+		ifunc = collect(1:nfunc)
 		if length(d) != length(g)
 			throw(ArgumentError("v must have as many dims as g has grids"))
 		end
