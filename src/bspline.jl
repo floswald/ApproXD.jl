@@ -46,7 +46,7 @@ type BSpline
 		ub = knots[end]
 		# extend knot vector by degree on both sides
 		knots_new = [ [lb for i=1:deg], knots, [ub for i=1:deg] ]
-		numKnots = length(knots_new) 
+		numKnots = length(knots)	# number of INTERIOR knots 
 		new(deg,numKnots,lb,ub,knots_new)
 	end
 
