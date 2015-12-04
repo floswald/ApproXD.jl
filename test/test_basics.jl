@@ -39,7 +39,7 @@ facts("equally spaced interior knots constructor") do
 	nKnots = npoints - deg + 1
 	lb     = 0.0
 	ub     = 10.0
-	points = linspace(lb,ub,npoints)
+	points = collect(linspace(lb,ub,npoints))
 	b = BSpline(nKnots,deg,lb,ub)
 
 	@fact all(getBasis(points,b) .== speye(npoints)) => true
@@ -52,14 +52,14 @@ facts("interior knots user supplied constructor") do
 	lb     = 0.0
 	ub     = 10.0
 
-	myknots = linspace(lb,ub,11)
+	myknots = collect(linspace(lb,ub,11))
 
 	b = BSpline(myknots,deg)
 
 	@fact all(b.knots .== [ [lb for i=1:deg] , myknots, [ub for i=1:deg] ]) => true
-	@fact getNumKnots(b) => length(myknots) + 2*deg
+	@fact getNumKnots(b) => length(myknots)
 
-	knots = linspace(ub,lb,11)
+	knots = collect(linspace(ub,lb,11))
 	@fact_throws BSpline(knots,deg)
 
 end
@@ -73,7 +73,7 @@ facts("compare computed basis to R splineDesign()") do
 	lb     = -1.1
 	ub     = 17.4
 
-	points = linspace(lb,ub,18)
+	points = collect(linspace(lb,ub,18))
 
 	# R data
 	# in R:

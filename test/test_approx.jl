@@ -66,7 +66,7 @@ facts("testing computation of coefficients") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:3]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:3]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:3]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:3]
@@ -155,7 +155,7 @@ facts("testing 2D tensorProduct evaluating off grid") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
@@ -232,7 +232,7 @@ facts("testing 3D tensorProduct approximations") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
@@ -312,7 +312,7 @@ facts("testing 4D tensorProduct approximations") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
@@ -394,7 +394,7 @@ facts("testing getTensorCoef performance on 4D") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
@@ -530,7 +530,7 @@ facts("testing getTensorCoef performance on 5D") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
@@ -601,7 +601,7 @@ facts("testing getTensorCoef performance on 10D") do
 	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up ApproXD
 	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
