@@ -86,18 +86,18 @@ function getBasis(x::Float64,b::BSpline)
 
 	# check x
 	if x < b.lower
-		throw(ArgumentError("x < lb: x=$x, lb=$(b.lower)"))
+		warn("x < lb: x=$x, lb=$(b.lower). be careful!")
 	elseif x > b.upper
-		throw(ArgumentError("x > ub: x=$x, ub=$(b.upper)"))
+		warn("x > ub: x=$x, ub=$(b.upper). be careful!")
 	end
 
 	# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
 	# i.e. get the index of the lower knot in the active knot span
 
 	# fix bound behaviour
-	if x == b.lower
+	if x <= b.lower
 		mu = deg+1
-	elseif x==b.upper
+	elseif x>=b.upper
 		mu = num_nodes
 	else
 		mu = searchsortedlast(b.knots,x) 

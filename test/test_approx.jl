@@ -196,6 +196,79 @@ facts("testing 1D spline evaluating off grid") do
 
 end
 
+facts("testing 1D spline extrapolation") do
+	
+
+	ndims = 1
+
+	# bounds
+	lb = [-2.1]
+	ub = [2.2]
+
+	# number of eval points and basis functions:
+	# we require square basis matrices!
+	npoints = [11]
+
+	# number of basis funcs
+	nbasis = npoints
+
+	# splien degrees
+	degs = [3]
+
+	# implies a number of knots for each spline
+	# remember the restriction that nknots == ncoefs
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
+
+	# eval points
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
+
+	# set up ApproXD
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
+
+	# set of basis functions
+	d = Dict{Integer,Array{Float64,2}}()
+	for i=1:ndims
+		d[i] = full(getBasis(points[i],bsp[i]))
+	end
+
+	# set of INVERSE basis functions
+	id = Dict{Integer,Array{Float64,2}}()
+	for k in collect(keys(d))
+		id[k] = inv(d[k])
+	end
+
+	#  get a function
+	function f(x) 
+		x^3
+	end
+
+	# compute function values so that
+	# k is fastest varying index
+	y = Float64[f(i) for i in points[1]]
+
+	yvec = y[:]
+
+	# get coefs using the function
+	mycoef = getTensorCoef(id,yvec)
+
+	 # testing tolerance
+	 tol = 1e-7
+
+	# predict values out of grid
+	rval1 = ub[1] + eps()
+	b1 = getBasis(rval1,bsp[1])
+	@fact mycoef' * b1 --> roughly(f(rval1),atol=tol)
+
+	rval1 = ub[1] + 1.0
+	b1 = getBasis(rval1,bsp[1])
+	@fact mycoef' * b1 --> roughly(f(rval1),atol=tol)
+
+	rval1 = ub[1] + 2.0
+	b1 = getBasis(rval1,bsp[1])
+	@fact mycoef' * b1 --> roughly(f(rval1),atol=tol)
+
+end
+
 
 facts("testing 2D tensorProduct evaluating off grid") do
 	
