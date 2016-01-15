@@ -45,7 +45,7 @@ type BSpline
 		lb = knots[1]
 		ub = knots[end]
 		# extend knot vector by degree on both sides
-		knots_new = [ [lb for i=1:deg], knots, [ub for i=1:deg] ]
+		knots_new = [ [lb for i=1:deg]; knots; [ub for i=1:deg] ]
 		numKnots = length(knots)	# number of INTERIOR knots 
 		new(deg,numKnots,lb,ub,knots_new)
 	end
@@ -163,18 +163,18 @@ function getBasis(x::Vector{Float64},b::BSpline)
 
 			# check x
 			if x[xi] < b.lower
-				throw(ArgumentError("x < lb: x=$(x[xi]), lb=$(b.lower)"))
+				warn("x < lb: x=$(x[xi]), lb=$(b.lower). be careful!")
 			elseif x[xi] > b.upper
-				throw(ArgumentError("x > ub: x=$(x[xi]), ub=$(b.upper)"))
+				warn("x > ub: x=$(x[xi]), ub=$(b.upper). be careful!")
 			end
 
 			# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
 			# i.e. get the index of the lower knot in the active knot span
 
 			# fix bound behaviour
-			if x[xi] == b.lower
+			if x[xi] <= b.lower
 				mu = deg+1
-			elseif x[xi]==b.upper
+			elseif x[xi]>=b.upper
 				mu = num_nodes
 			else
 				mu = searchsortedlast(b.knots,x[xi]) 

@@ -25,13 +25,13 @@ function plot2D()
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
+	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
 
 	# set up BSplines
-	bsp = {i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims}
+	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()

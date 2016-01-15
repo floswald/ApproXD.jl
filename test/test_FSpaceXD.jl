@@ -26,7 +26,7 @@ facts("testing FSpaceXD") do
 	nknots = {i => nbasis[i] - degs[i] + 1 for i=1:ndims}
 
 	# eval points
-	points = {i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims}
+	points = {i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims}
 
 	# set up ApproXD
 	bsp = Dict{Integer,BSpline}()

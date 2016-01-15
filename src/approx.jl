@@ -36,7 +36,7 @@ function getTensorCoef{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
 	v1    = zeros(nall)
 	stemp = ibm[ks[1]]
 	n     = size(stemp,1)
-	m     = nall / n
+	m     = round(Int,nall / n)
 	for i in 1:m, j=1:n
 		vtmp = 0.0
 		for ji=1:n
@@ -53,7 +53,7 @@ function getTensorCoef{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
 			# v0    = copy(v)
 			stemp = ibm[ks[imat]]
 			n     = size(stemp,1)
-			m     = nall / n
+			m     = round(Int,nall / n)
 			# fill!(v1,0.0)
 			# for i in 1:m, j=1:n
 			for i in 1:m, j=1:n

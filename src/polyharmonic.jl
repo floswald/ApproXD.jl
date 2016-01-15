@@ -1,3 +1,8 @@
+# this was taken from a gist by luke stagner
+# https://gist.github.com/floswald/61e201d64f1ee9a5f3b6
+# there was no license file.
+
+
 type PolyharmonicSpline
   dim::Int64
   order::Int64
@@ -8,7 +13,7 @@ end
  
 function polyharmonicK(r,K)
   if iseven(K)
-    return r < 1 ? (r.^(K-1))*log(r.^r) : (r^K)*log(r)
+    return r< 1 ? (r.^(K-1))*log(r.^r) : (r^K)*log(r)
   else
     return r^K
   end
@@ -85,4 +90,10 @@ end
  
 function interpolate(S::PolyharmonicSpline,x::Vector{Float64},y::Vector{Float64},z::Vector{Float64})
   return interpolate(S,[x y z])
+end
+
+function plotBasis()
+  x = collect(0:0.01:1)
+  d=[polyharmonicK(ix,i) for ix in x, i=collect(1:7)]
+  PyPlot.plot(x,d)
 end

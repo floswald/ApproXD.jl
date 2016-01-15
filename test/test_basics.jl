@@ -33,6 +33,8 @@ facts("equally spaced interior knots constructor") do
 	@fact nonzeros(getBasis(lb,b)) => [1.0]
 	@fact nonzeros(getBasis(ub,b)) => [1.0]
 
+	
+
 	# a special case
 	deg    = 1
 	npoints = 10
@@ -56,7 +58,7 @@ facts("interior knots user supplied constructor") do
 
 	b = BSpline(myknots,deg)
 
-	@fact all(b.knots .== [ [lb for i=1:deg] , myknots, [ub for i=1:deg] ]) => true
+	@fact all(b.knots .== [ [lb for i=1:deg] ; myknots; [ub for i=1:deg] ]) => true
 	@fact getNumKnots(b) => length(myknots)
 
 	knots = collect(linspace(ub,lb,11))
