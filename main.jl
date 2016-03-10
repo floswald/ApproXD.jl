@@ -5,8 +5,7 @@
 
 
 # main programme
-home = ENV["HOME"]
-cd("$home/git/ApproXD.jl")
+cd(Pkg.dir("ApproXD"))
 
 include("src/ApproXD.jl")
 include("test/test_Lininterp.jl")
