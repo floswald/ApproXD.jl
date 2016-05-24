@@ -1167,88 +1167,107 @@ facts("testing getValue4D on 3 functions") do
 	vs2 = Float64[ myfun2(i,j,k,m) for i in gs[1], j in gs[2], k in gs[3], m in gs[4] ]
 	vs3 = Float64[ myfun3(i,j,k,m) for i in gs[1], j in gs[2], k in gs[3], m in gs[4] ]
 
-	vs = Array{Float64}[]
-	push!(vs,vs1)
-	push!(vs,vs2)
-	push!(vs,vs3)
+		vs = Array{Float64}[]
+		push!(vs,vs1)
+		push!(vs,vs2)
+		push!(vs,vs3)
 
-	l = Lininterp(vs,gs)
+		l = Lininterp(vs,gs)
 
-	# check value on bounds
-	v = getValue(l,lbs)
-	@fact v[1] --> vs1[1,1,1,1]
-	@fact v[2] --> vs2[1,1,1,1]
-	@fact v[3] --> vs3[1,1,1,1]
+	context("returning all functions stored on L") do
 
-	v = getValue(l,ubs)
-	@fact v[1] --> vs1[3,4,5,9]
-	@fact v[2] --> vs2[3,4,5,9]
-	@fact v[3] --> vs3[3,4,5,9]
+		# check value on bounds
+		v = getValue(l,lbs)
+		@fact v[1] --> vs1[1,1,1,1]
+		@fact v[2] --> vs2[1,1,1,1]
+		@fact v[3] --> vs3[1,1,1,1]
 
-	v = getValue(l,[1.0,5.0,-1,4])
-	@fact v[1] --> vs1[1,4,1,1]
-	@fact v[2] --> vs2[1,4,1,1]
-	@fact v[3] --> vs3[1,4,1,1]
+		v = getValue(l,ubs)
+		@fact v[1] --> vs1[3,4,5,9]
+		@fact v[2] --> vs2[3,4,5,9]
+		@fact v[3] --> vs3[3,4,5,9]
 
-	v = getValue(l,[1.0,5.0,3,18])
-	@fact v[1] --> vs1[1,4,5,9]
-	@fact v[2] --> vs2[1,4,5,9]
-	@fact v[3] --> vs3[1,4,5,9]
+		v = getValue(l,[1.0,5.0,-1,4])
+		@fact v[1] --> vs1[1,4,1,1]
+		@fact v[2] --> vs2[1,4,1,1]
+		@fact v[3] --> vs3[1,4,1,1]
 
-	# check values out of bounds
-	v = getValue(l,[-1.0,2.0,-1,4])
-	@fact v[1] --> vs1[1,1,1,1]
-	@fact v[2] --> vs2[1,1,1,1]
-	@fact v[3] --> vs3[1,1,1,1]
+		v = getValue(l,[1.0,5.0,3,18])
+		@fact v[1] --> vs1[1,4,5,9]
+		@fact v[2] --> vs2[1,4,5,9]
+		@fact v[3] --> vs3[1,4,5,9]
 
-	v = getValue(l,[1.0,200.0,-1,18])
-	@fact v[1] --> vs1[1,4,1,9]
-	@fact v[2] --> vs2[1,4,1,9]
-	@fact v[3] --> vs3[1,4,1,9]
-	println(l)
-	# ApproXD.resetCache!(l)
+		# check values out of bounds
+		v = getValue(l,[-1.0,2.0,-1,4])
+		@fact v[1] --> vs1[1,1,1,1]
+		@fact v[2] --> vs2[1,1,1,1]
+		@fact v[3] --> vs3[1,1,1,1]
 
-	# close to bounds
-	x=1.99
-	y=4.9
-	z=2.9
-	w=17.95
-	v = getValue(l,[x,y,z,w])
-	@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
-	@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
-	@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
+		v = getValue(l,[1.0,200.0,-1,18])
+		@fact v[1] --> vs1[1,4,1,9]
+		@fact v[2] --> vs2[1,4,1,9]
+		@fact v[3] --> vs3[1,4,1,9]
+		println(l)
+		# ApproXD.resetCache!(l)
 
-	x=1.4861407584066377
-	y=3.5646251730324234
-	z=2.7832610606532944
-	w=10.05
-	v = getValue(l,[x,y,z,w])
-	@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
-	@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
-	@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
-
-	x = 2.53
-	y = 2.58
-	z = -0.87
-	w = 5.77
-	v = getValue(l,[x,y,z,w])
-	@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
-	@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
-	@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
-
-	# check at random vals in interval
-
-	for i in 1:100
-		x = rand() * (ubs[1]-lbs[1]) + lbs[1]
-		y = rand() * (ubs[2]-lbs[2]) + lbs[2]
-		z = rand() * (ubs[3]-lbs[3]) + lbs[3]
-		w = rand() * (ubs[4]-lbs[4]) + lbs[4]
+		# close to bounds
+		x=1.99
+		y=4.9
+		z=2.9
+		w=17.95
 		v = getValue(l,[x,y,z,w])
 		@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
 		@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
 		@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
+
+		x=1.4861407584066377
+		y=3.5646251730324234
+		z=2.7832610606532944
+		w=10.05
+		v = getValue(l,[x,y,z,w])
+		@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
+		@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
+		@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
+
+		x = 2.53
+		y = 2.58
+		z = -0.87
+		w = 5.77
+		v = getValue(l,[x,y,z,w])
+		@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
+		@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
+		@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
+
+		# check at random vals in interval
+
+		for i in 1:100
+			x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+			y = rand() * (ubs[2]-lbs[2]) + lbs[2]
+			z = rand() * (ubs[3]-lbs[3]) + lbs[3]
+			w = rand() * (ubs[4]-lbs[4]) + lbs[4]
+			v = getValue(l,[x,y,z,w])
+			@fact v[1] - myfun1(x,y,z,w) --> roughly(0.0,atol=1e-6)
+			@fact v[2] - myfun2(x,y,z,w) --> roughly(0.0,atol=1e-6)
+			@fact v[3] - myfun3(x,y,z,w) --> roughly(0.0,atol=1e-6)
+		end
 	end
-	println(l)
+
+	context("returning selected functions stored on L") do
+		f = [myfun1;myfun2;myfun3]
+		for i in 1:10
+			x = rand() * (ubs[1]-lbs[1]) + lbs[1]
+			y = rand() * (ubs[2]-lbs[2]) + lbs[2]
+			z = rand() * (ubs[3]-lbs[3]) + lbs[3]
+			w = rand() * (ubs[4]-lbs[4]) + lbs[4]
+			gets = ApproXD.sample(1:l.nfunc,rand(1:l.nfunc))
+			v = zeros(length(gets))
+			getValue!(v,l,[x,y,z,w],gets)
+			for ig in 1:length(gets)
+				@fact v[ig] - f[gets[ig]](x,y,z,w) --> roughly(0.0,atol=1e-6)
+			end
+		end
+	end
+
 end
 
 

@@ -5,6 +5,8 @@ module ApproXD
 
 	import Base.show, Base.convert
 
+	using StatsBase: sample
+
 	# load files
 	include("bspline.jl")
 	include("approx.jl")
