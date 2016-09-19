@@ -25,13 +25,13 @@ function plot2D()
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
+	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = [i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims]
+	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
 
 	# set up BSplines
-	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
+	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -68,7 +68,7 @@ function plot2D()
 
 	new_npoints = [17,16]
 	# new_npoints = npoints
-	new_points = [i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims]
+	new_points = Dict(i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims)
 	# set of new basis functions
 	nd = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
@@ -113,13 +113,13 @@ function plot3D()
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
+	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = Dict(i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims)
 
 	# set up BSplines
-	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
+	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -153,7 +153,7 @@ function plot3D()
 
 		new_npoints = [17,16,5]
 		# new_npoints = npoints
-		new_points = [i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims]
+		new_points = Dict(i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims)
 		# set of new basis functions
 		nd = Dict{Integer,Array{Float64,2}}()
 		for i=1:ndims
@@ -204,13 +204,13 @@ function plot4D()
 
 	# implies a number of knots for each spline
 	# remember the restriction that nknots == ncoefs
-	nknots = [i => nbasis[i] - degs[i] + 1 for i=1:ndims]
+	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = [i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims]
+	points = Dict(i => linspace(lb[i],ub[i],npoints[i]) for i=1:ndims)
 
 	# set up BSplines
-	bsp = [i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims]
+	bsp = Dict(i => BSpline(nknots[i],degs[i],lb[i],ub[i]) for i=1:ndims)
 
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
@@ -247,7 +247,7 @@ function plot4D()
 
 		new_npoints = [17,16,5,7]
 		# new_npoints = npoints
-		new_points = [i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims]
+		new_points = Dict(i => linspace(lb[i],ub[i],new_npoints[i]) for i=1:ndims)
 		# set of new basis functions
 		nd = Dict{Integer,Array{Float64,2}}()
 		for i=1:ndims

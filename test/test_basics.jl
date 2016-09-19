@@ -30,8 +30,8 @@ facts("equally spaced interior knots constructor") do
 
 
 	# test that when x == upper/lower, first/last basis is 1
-	@fact nonzeros(getBasis(lb,b)) => [1.0]
-	@fact nonzeros(getBasis(ub,b)) => [1.0]
+	@fact nonzeros(getBasis(lb,b))[1] => 1.0
+	@fact nonzeros(getBasis(ub,b))[end] => 1.0
 
 	
 

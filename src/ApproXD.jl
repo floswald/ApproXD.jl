@@ -13,7 +13,7 @@ module ApproXD
 	include("fspacexd.jl")
 	include("lininterp.jl")
 
-	if Sys.OS_NAME == :Darwin
+	if is_apple()
 	   using PyPlot
 	   include("plotting.jl")
 	end
