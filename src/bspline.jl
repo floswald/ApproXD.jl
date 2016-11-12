@@ -67,6 +67,23 @@ function getCoefs(b::BSpline) return b.knots[ (b.degree+1):(length(b.knots)-b.de
 function getDegree(b::BSpline) return b.degree end
 
 
+# """
+# 	compute value of the ``d + 1`` B-splines at ``x``
+
+# returns 
+
+# ```math
+# b = \right(B_{\mu-d,d}(x),\dots,B_{\mu,d}(x)\left)^T
+# ```
+# """
+# function getBasis2(x::Float64,b::BSpline)
+
+# 	num_nodes = getNumCoefs(b)
+# 	deg       = b.degree
+
+# 	B = zeros(num_nodes)  # Bspline
+
+# end
  
 #
 function getBasis(x::Float64,b::BSpline)
@@ -118,11 +135,15 @@ function getBasis(x::Float64,b::BSpline)
 			# dividing by zero must return 0.0
 			if j+k <= deg +1
 				d = 0.0
+			elseif b.knots[j+k]-b.knots[j] == 0
+				d = 0.0
 			else
 				d = bs[j] * (x - b.knots[j]) / (b.knots[j+k]-b.knots[j])
 			end
 
 			if j+1 >= num_nodes+1
+				e = 0.0
+			elseif b.knots[j+k+1]-b.knots[j+1] == 0
 				e = 0.0
 			else
 				e = bs[j+1] * (b.knots[j+k+1] - x)/(b.knots[j+k+1]-b.knots[j+1])
@@ -195,11 +216,15 @@ function getBasis(x::Vector{Float64},b::BSpline)
 					# dividing by zero must return 0.0
 					if j+k <= deg +1
 						d = 0.0
+					elseif b.knots[j+k]-b.knots[j] == 0
+						d = 0.0
 					else
 						d = bs[xi,j] * (x[xi] - b.knots[j]) / (b.knots[j+k]-b.knots[j])
 					end
 
 					if j+1 >= num_nodes+1
+						e = 0.0
+					elseif b.knots[j+k+1]-b.knots[j+1] == 0
 						e = 0.0
 					else
 						e = bs[xi,j+1] * (b.knots[j+k+1] - x[xi])/(b.knots[j+k+1]-b.knots[j+1])
