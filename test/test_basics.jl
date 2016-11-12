@@ -66,6 +66,31 @@ facts("interior knots user supplied constructor") do
 
 end
 
+facts("interpolate function with a kink") do
+	
+	deg = 3
+	lb = -1.0
+	ub = 1.0
+	kink = 0.0
+	knots = vcat(lb,-0.5,0,0,0.5,ub)
+	nKnots = length(knots)
+	npoints = nKnots + deg -1
+	points = collect(linspace(lb,ub,npoints))
+	b = BSpline(knots,deg)
+	f(x) = x>=0 ? x^2 : 0.0
+	B = full(getBasis(points,b))
+	# cannot handle multiple knots!!!
+	
+	# println(B)
+	# coef = pinv(B) * f.(points)
+
+	# newpts = collect(linspace(lb,ub,100))
+	# newvls = getBasis(newpts,b) * coef 
+	# println(hcat(newpts,newvls))
+
+	@pending maxabs(newvls .- f.(newpts)) < 1e-6 --> true
+
+end
 
 
 
