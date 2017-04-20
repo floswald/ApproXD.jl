@@ -12,6 +12,7 @@ module ApproXD
 	include("approx.jl")
 	include("fspacexd.jl")
 	include("lininterp.jl")
+	include("polyharmonic.jl")
 
 	if is_apple()
 	   using PyPlot
