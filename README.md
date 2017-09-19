@@ -5,10 +5,9 @@
 
 [![Build Status](https://travis-ci.org/floswald/ApproXD.jl.png?branch=master)](https://travis-ci.org/floswald/ApproXD.jl)
 
-<!-- [![Coverage Status](https://coveralls.io/repos/floswald/BSplines.jl/badge.png)](https://coveralls.io/r/floswald/BSplines.jl) -->
+[![Coverage Status](https://coveralls.io/repos/floswald/ApproXD.jl/badge.png)](https://coveralls.io/r/floswald/ApproXD.jl)
 
 
-[![2D approximation](https://dl.dropboxusercontent.com/u/109115/BSplines.jl/approx.png)]()
 
 This package implements high-dimensional approximation of real-valued functions in Julia:
 
