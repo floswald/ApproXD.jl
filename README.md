@@ -21,4 +21,3 @@ fun(x,y,z) = x^2 + y^(0.5) + (x-z)^2
 # what is fun(4.5,pi,8.01) ?
 ```
 
-[Documentation is available on readthedocs](http://approxdjl.readthedocs.org/en/latest/index.html). 

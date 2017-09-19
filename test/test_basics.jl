@@ -1,11 +1,8 @@
 
 
-module test_basics
-
-using FactCheck, ApproXD
 
 
-facts("equally spaced interior knots constructor") do
+@testset "equally spaced interior knots constructor" begin
 
 
 	deg    = 3
@@ -15,23 +12,23 @@ facts("equally spaced interior knots constructor") do
 
 	b = BSpline(nKnots,deg,lb,ub)
 
-	@fact getNumKnots(b) + 2*deg => length(b.knots)
-	@fact b.degree => deg
-	@fact b.numKnots => nKnots
-	@fact b.lower => lb
-	@fact b.upper => ub
-	@fact sum(abs(ApproXD.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) => 0.0
+	@test getNumKnots(b) + 2*deg == length(b.knots)
+	@test b.degree == deg
+	@test b.numKnots == nKnots
+	@test b.lower == lb
+	@test b.upper == ub
+	@test sum(abs.(ApproXD.getCoefs(b) .- b.knots[(deg+1):(length(b.knots)-deg)])) == 0.0
 
-	@fact_throws BSpline(nKnots,deg,ub,lb)
-	@fact_throws BSpline(nKnots,-1,lb,ub)
+	@test_throws ArgumentError BSpline(nKnots,deg,ub,lb)
+	@test_throws ArgumentError BSpline(nKnots,-1,lb,ub)
 	nKnots=2
-	@fact_throws BSpline(nKnots,deg,lb,ub)
+	@test_throws ArgumentError BSpline(nKnots,deg,lb,ub)
 
 
 
 	# test that when x == upper/lower, first/last basis is 1
-	@fact nonzeros(getBasis(lb,b))[1] => 1.0
-	@fact nonzeros(getBasis(ub,b))[end] => 1.0
+	@test nonzeros(getBasis(lb,b))[1] == 1.0
+	@test nonzeros(getBasis(ub,b))[end] == 1.0
 
 	
 
@@ -44,11 +41,11 @@ facts("equally spaced interior knots constructor") do
 	points = collect(linspace(lb,ub,npoints))
 	b = BSpline(nKnots,deg,lb,ub)
 
-	@fact all(getBasis(points,b) .== speye(npoints)) => true
+	@test all(getBasis(points,b) .== speye(npoints)) 
 end
 
 
-facts("interior knots user supplied constructor") do
+@testset "interior knots user supplied constructor" begin
 
 	deg    = 3
 	lb     = 0.0
@@ -58,15 +55,15 @@ facts("interior knots user supplied constructor") do
 
 	b = BSpline(myknots,deg)
 
-	@fact all(b.knots .== [ [lb for i=1:deg] ; myknots; [ub for i=1:deg] ]) => true
-	@fact getNumKnots(b) => length(myknots)
+	@test all(b.knots .== [ [lb for i=1:deg] ; myknots; [ub for i=1:deg] ]) 
+	@test getNumKnots(b) == length(myknots)
 
 	knots = collect(linspace(ub,lb,11))
-	@fact_throws BSpline(knots,deg)
+	@test_throws ArgumentError BSpline(knots,deg)
 
 end
 
-facts("interpolate function with a kink") do
+@testset "interpolate function with a kink" begin
 	
 	deg = 3
 	lb = -1.0
@@ -79,7 +76,6 @@ facts("interpolate function with a kink") do
 	b = BSpline(knots,deg)
 	f(x) = x>=0 ? x^2 : 0.0
 	B = full(getBasis(points,b))
-	# cannot handle multiple knots!!!
 
 	# println(B)
 	coef = pinv(B) * f.(points)
@@ -87,13 +83,13 @@ facts("interpolate function with a kink") do
 	newpts = collect(linspace(lb,ub,100))
 	newvls = getBasis(newpts,b) * coef 
 
-	@fact maxabs(newvls .- f.(newpts)) < 1e-10 --> true
+	@test maximum(abs,newvls .- f.(newpts)) < 1e-10 
 
 end
 
 
 
-facts("compare computed basis to R splineDesign()") do
+@testset "compare computed basis to R splineDesign()" begin
 
 	nKnots = 15
 	lb     = -1.1
@@ -272,13 +268,12 @@ facts("compare computed basis to R splineDesign()") do
 		b = BSpline(nKnots,deg,lb,ub)
 		bs = getBasis(points,b)
 
-		@fact size(bs) => (length(points),ApproXD.getNumCoefs(b))
+		@test size(bs) == (length(points),ApproXD.getNumCoefs(b))
 
-		@fact maximum(abs(full(bs)[:] .- Rbase[deg])) => roughly(0.0,atol=1e-4)
+		@test isapprox(maximum(abs,full(bs)[:] .- Rbase[deg]), 0.0, atol=1e-4)
 
 	end
 
 end
 
 
-end

@@ -166,7 +166,7 @@ function getBasis(x::Vector{Float64},b::BSpline)
 
 
 	# if you evaluate a degree 1 basis at its interior knots ("coefs"), you get identity
-	if (deg == 1) && (n == num_nodes) && (sum(abs(x .- getCoefs(b))) < 1e-8)
+	if (deg == 1) && (n == num_nodes) && (sum(abs.(x .- getCoefs(b))) < 1e-8)
 		return speye(n)
 	else
 	# sort x?

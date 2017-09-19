@@ -1,9 +1,13 @@
 
 
-using FactCheck
-include("test_basics.jl")
-include("test_approx.jl")
-include("test_FSpaceXD.jl")
-include("test_lininterp.jl")
+using Base.Test
+using TestSetExtensions
+using ApproXD
 
-exitstatus()
+@testset ExtendedTestSet "Running ApproXD tests" begin
+
+    @includetests ARGS
+
+end
+
+
