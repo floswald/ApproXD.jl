@@ -5,6 +5,8 @@
 
 [![Build Status](https://travis-ci.org/floswald/ApproXD.jl.png?branch=master)](https://travis-ci.org/floswald/ApproXD.jl)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/p4tr6m340xa1r9a6?svg=true)](https://ci.appveyor.com/project/floswald/approxd-jl)
+
 [![Coverage Status](https://coveralls.io/repos/floswald/ApproXD.jl/badge.png)](https://coveralls.io/r/floswald/ApproXD.jl)
 
 
