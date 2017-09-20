@@ -6,17 +6,14 @@ module ApproXD
 	import Base.show, Base.convert
 
 	using StatsBase: sample
+    using PyPlot
 
 	# load files
 	include("bspline.jl")
 	include("approx.jl")
 	include("fspacexd.jl")
 	include("lininterp.jl")
-
-	if is_apple()
-	   using PyPlot
-	   include("plotting.jl")
-	end
+	include("plotting.jl")
 
 	export BSpline,
 		   Lininterp,
