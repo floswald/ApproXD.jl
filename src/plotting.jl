@@ -1,5 +1,7 @@
 
 
+using PyPlot
+
 
 
 	# 2D approximation example

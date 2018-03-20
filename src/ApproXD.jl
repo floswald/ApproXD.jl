@@ -15,10 +15,7 @@ module ApproXD
 	include("lininterp.jl")
 	# couldn't get PyPlot to install properly on appveyor.
 	# so windows users can't do the plots. there not that important anyway.
-    if is_apple()
-    	using PyPlot
-		include("plotting.jl")
-    end
+	# include("plotting.jl")
 
 	export BSpline,
 		   Lininterp,
