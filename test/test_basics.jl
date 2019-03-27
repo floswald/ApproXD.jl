@@ -1,5 +1,8 @@
-
-
+module test_basics
+using ApproXD
+using Test
+using SparseArrays
+using LinearAlgebra
 
 
 @testset "equally spaced interior knots constructor" begin
@@ -27,8 +30,8 @@
 
 
 	# test that when x == upper/lower, first/last basis is 1
-	@test nonzeros(getBasis(lb,b))[1] == 1.0
-	@test nonzeros(getBasis(ub,b))[end] == 1.0
+	@test findnz(getBasis(lb,b))[2][1] == 1.0
+	@test findnz(getBasis(ub,b))[2][end] == 1.0
 
 	
 
@@ -38,10 +41,10 @@
 	nKnots = npoints - deg + 1
 	lb     = 0.0
 	ub     = 10.0
-	points = collect(linspace(lb,ub,npoints))
+	points = collect(range(lb,stop=ub,length=npoints))
 	b = BSpline(nKnots,deg,lb,ub)
 
-	@test all(getBasis(points,b) .== speye(npoints)) 
+	@test all(getBasis(points,b) .== sparse(I*1.0,npoints,npoints)) 
 end
 
 
@@ -51,14 +54,14 @@ end
 	lb     = 0.0
 	ub     = 10.0
 
-	myknots = collect(linspace(lb,ub,11))
+	myknots = collect(range(lb,stop=ub,length=11))
 
 	b = BSpline(myknots,deg)
 
 	@test all(b.knots .== [ [lb for i=1:deg] ; myknots; [ub for i=1:deg] ]) 
 	@test getNumKnots(b) == length(myknots)
 
-	knots = collect(linspace(ub,lb,11))
+	knots = collect(range(ub,stop=lb,length=11))
 	@test_throws ArgumentError BSpline(knots,deg)
 
 end
@@ -72,15 +75,15 @@ end
 	knots = vcat(lb,-0.5,0,0,0.5,ub)
 	nKnots = length(knots)
 	npoints = nKnots + deg -1
-	points = collect(linspace(lb,ub,npoints))
+	points = collect(range(lb,stop=ub,length=npoints))
 	b = BSpline(knots,deg)
 	f(x) = x>=0 ? x^2 : 0.0
-	B = full(getBasis(points,b))
+	B = Array(getBasis(points,b))
 
 	# println(B)
 	coef = pinv(B) * f.(points)
 
-	newpts = collect(linspace(lb,ub,100))
+	newpts = collect(range(lb,stop=ub,length=100))
 	newvls = getBasis(newpts,b) * coef 
 
 	@test maximum(abs,newvls .- f.(newpts)) < 1e-10 
@@ -95,7 +98,7 @@ end
 	lb     = -1.1
 	ub     = 17.4
 
-	points = collect(linspace(lb,ub,18))
+	points = collect(range(lb,stop=ub,length=18))
 
 	# R data
 	# in R:
@@ -270,10 +273,11 @@ end
 
 		@test size(bs) == (length(points),ApproXD.getNumCoefs(b))
 
-		@test isapprox(maximum(abs,full(bs)[:] .- Rbase[deg]), 0.0, atol=1e-4)
+		@test isapprox(maximum(abs,Array(bs)[:] .- Rbase[deg]), 0.0, atol=1e-4)
 
 	end
 
 end
 
 
+end

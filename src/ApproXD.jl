@@ -1,11 +1,10 @@
-
-
-
 module ApproXD
 
-	import Base.show, Base.convert
+import Base.show, Base.convert
 
 	using StatsBase: sample
+	using SparseArrays
+	using LinearAlgebra
 
 
 	# load files
@@ -33,6 +32,5 @@ module ApproXD
 	       hitmiss,
 	       resetCache!,
 	       setGrid!
-end
 
-
+end # module

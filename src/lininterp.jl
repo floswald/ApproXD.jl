@@ -1,6 +1,6 @@
 
 
-type Lininterp
+mutable struct Lininterp
 
 	d          :: Array{Int}    # number of points in each dimension
 	n          :: Int 	        # number  of dims
@@ -621,7 +621,7 @@ function show(io::IO, l::Lininterp)
 	if l.hits+l.miss == 0
 		print(io,"accelerator hits 0% of attemps\n")
 	else
-		print(io,"accelerator hits $(round(100*l.hits/(l.hits+l.miss),2)) % of attemps\n")
+		print(io,"accelerator hits $(round(Int,100*l.hits/(l.hits+l.miss))) % of attemps\n")
 	end
 end
 

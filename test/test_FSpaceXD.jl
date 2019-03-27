@@ -1,4 +1,7 @@
 
+module test_fspace
+using ApproXD
+using Test
 
 
 
@@ -24,7 +27,7 @@
 	nknots = Dict(i => nbasis[i] - degs[i] + 1 for i=1:ndims)
 
 	# eval points
-	points = Dict(i => collect(linspace(lb[i],ub[i],npoints[i])) for i=1:ndims)
+	points = Dict(i => collect(range(lb[i],stop = ub[i], length = npoints[i])) for i=1:ndims)
 
 	# set up ApproXD
 	bsp = Dict{Integer,BSpline}()
@@ -35,7 +38,7 @@
 	# set of basis functions
 	d = Dict{Integer,Array{Float64,2}}()
 	for i=1:ndims
-		d[i] = full(getBasis(points[i],bsp[i]))
+		d[i] = Array(getBasis(points[i],bsp[i]))
 	end
 
 	# set of INVERSE basis functions
@@ -71,3 +74,4 @@
 end
 
 
+end
