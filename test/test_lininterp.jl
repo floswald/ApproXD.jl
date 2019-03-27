@@ -1,10 +1,15 @@
 
+module test_lin
+using ApproXD
+using Test
+# using SparseArrays
+# using LinearAlgebra
 
 @testset "constructor for 1D Lininterp on a single function" begin
 
 	vs = rand(4)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(2.0,3,4))
+	push!(gs, range(2.0, stop = 3, length = 4))
 
 	l = Lininterp(vs,gs)
 
@@ -23,7 +28,7 @@
 	# errors
 	pop!(gs)   # missing grid
 	@test_throws ArgumentError Lininterp(vs,gs)   
-	push!(gs, linspace(-1,3.0,5)) 	# wrong length
+	push!(gs, range(-1,stop =3.0, length=5)) 	# wrong length
 	@test_throws ArgumentError Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3]) 	# not sorted
@@ -35,8 +40,8 @@ end
 
 	vs = rand(3,4)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,3,4))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0, stop = 3, length = 4))
 
 	l = Lininterp(vs,gs)
 
@@ -55,7 +60,7 @@ end
 	# errors
 	pop!(gs)   # missing grid
 	@test_throws ArgumentError Lininterp(vs,gs)   
-	push!(gs, linspace(-1,3.0,5)) 	# wrong length
+	push!(gs, range(-1,stop =3.0, length=5)) 	# wrong length
 	@test_throws ArgumentError Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3]) 	# not sorted
@@ -68,8 +73,8 @@ end
 	vs1 = rand(3,4)
 	vs2 = rand(3,4)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,3,4))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0, stop = 3, length = 4))
 
 	l = Lininterp(vs1,vs2,gs)
 
@@ -89,7 +94,7 @@ end
 	# errors
 	pop!(gs)   # missing grid
 	@test_throws UndefVarError Lininterp(vs,gs)   
-	push!(gs, linspace(-1,3.0,5)) 	# wrong length
+	push!(gs, range(-1,stop =3.0, length=5)) 	# wrong length
 	@test_throws UndefVarError Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3]) 	# not sorted
@@ -101,9 +106,9 @@ end
 
 	vs = rand(3,4,5)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,3,4))
-	push!(gs, linspace(-1,3.0,5))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0, stop = 3, length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
 
 	l = Lininterp(vs,gs)
 
@@ -121,7 +126,7 @@ end
 	# errors
 	pop!(gs)   # missing grid
 	@test_throws ArgumentError Lininterp(vs,gs)   
-	push!(gs, linspace(-1,3.0,4)) 	# wrong length
+	push!(gs, range(-1, stop = 3.0, length = 4)) 	# wrong length
 	@test_throws ArgumentError Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3,4]) 	# not sorted
@@ -133,10 +138,10 @@ end
 
 	vs = rand(3,4,5,7)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,3,4))
-	push!(gs, linspace(-1,3.0,5))
-	push!(gs, linspace(-0.1,4.8,7))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0, stop = 3, length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
+	push!(gs, range(-0.1,stop = 4.8,length = 7))
 
 	l = Lininterp(vs,gs)
 
@@ -153,7 +158,7 @@ end
 	# errors
 	pop!(gs)   # missing grid
 	@test_throws ArgumentError Lininterp(vs,gs)   
-	push!(gs, linspace(-1,3.0,4)) 	# wrong length
+	push!(gs, range(-1, stop = 3.0, length = 4)) 	# wrong length
 	@test_throws ArgumentError Lininterp(vs,gs)
 	pop!(gs)
 	push!(gs, [1.1,0,2,3,4,5,6]) 	# not sorted
@@ -166,9 +171,9 @@ end
 
 	vs = rand(3,4,5)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,3,4))
-	push!(gs, linspace(-1,3.0,5))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0, stop = 3, length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
 
 	l = Lininterp(vs,gs)
 	myc = [2,1,3]
@@ -187,7 +192,7 @@ end
 
 	vs = rand(5)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(-1,3.0,5))
+	push!(gs, range(-1,stop =3.0, length=5))
 
 	l = Lininterp(vs,gs)
 	@test l.hascache == false
@@ -229,9 +234,9 @@ end
 
 	vs = rand(3,4,5)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,6.0,4))
-	push!(gs, linspace(-1,3.0,5))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0,stop = 6.0,length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
 
 	l = Lininterp(vs,gs)
 	@test l.hascache == false
@@ -278,10 +283,10 @@ end
 
 	vs = rand(3,4,5,7)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,6.0,4))
-	push!(gs, linspace(-1,3.0,5))
-	push!(gs, linspace(-2,5.0,7))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0,stop = 6.0,length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
+	push!(gs, range(-2,stop = 5.0,length = 7))
 
 	l = Lininterp(vs,gs)
 	@test l.hascache == false
@@ -334,9 +339,9 @@ end
 	
 	vs = rand(3,4,5)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,6.0,4))
-	push!(gs, linspace(-1,3.0,5))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0,stop = 6.0,length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
 
 	l = Lininterp(vs,gs)
 	x = [1.1,3.5,2.8] 	# == brackets 1,2,4
@@ -390,9 +395,9 @@ end
 	vs1 = rand(3,4,5)
 	vs2 = rand(3,4,5)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,6.0,4))
-	push!(gs, linspace(-1,3.0,5))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0,stop = 6.0,length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
 
 	l = Lininterp(vs1,vs2,gs)
 	x = [1.1,3.5,2.8] 	# == brackets 1,2,4
@@ -474,10 +479,10 @@ end
 	
 	vs = rand(3,4,5,7)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,6.0,4))
-	push!(gs, linspace(-1,3.0,5))
-	push!(gs, linspace(-2,5.0,7))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0,stop = 6.0,length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
+	push!(gs, range(-2,stop = 5.0,length = 7))
 
 	l = Lininterp(vs,gs)
 	x = [1.1,3.5,2.8,3.9] 	# == brackets 1,2,4,6
@@ -554,10 +559,10 @@ end
 	vs1= rand(3,4,5,7)
 	vs2= rand(3,4,5,7)
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(1.0,3,3))
-	push!(gs, linspace(2.0,6.0,4))
-	push!(gs, linspace(-1,3.0,5))
-	push!(gs, linspace(-2,5.0,7))
+	push!(gs, range(1.0, stop = 3, length = 3))
+	push!(gs, range(2.0,stop = 6.0,length = 4))
+	push!(gs, range(-1,stop =3.0, length=5))
+	push!(gs, range(-2,stop = 5.0,length = 7))
 
 	l = Lininterp(vs1,vs2,gs)
 	x = [1.1,3.5,2.8,3.9] 	# == brackets 1,2,4,6
@@ -686,7 +691,7 @@ end
 	ubs = [3.0]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],4))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 4))
 
 	myfun(i1) = 0.75*i1 
 	
@@ -715,7 +720,7 @@ end
 	lbs = [1.0]
 	ubs = [33.0]
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],40))
+	push!(gs, range(lbs[1],stop = ubs[1], length = 40))
 
 	vs = Float64[ myfun(i) for i in gs[1]]
 
@@ -734,14 +739,14 @@ end
 	lbs = [1.0]
 	ubs = [33.0]
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],40))
+	push!(gs, range(lbs[1],stop = ubs[1], length = 40))
 
 	vs = Float64[ myfun(i) for i in gs[1]]
 
 	l = Lininterp(vs,gs)
 	y = [0.0]
 	# check at increasing vals in interval
-	x = linspace(lbs[1],ubs[1],300)
+	x = range(lbs[1],stop = ubs[1],length = 300)
 	for i in 1:length(x)
 		getValue!(y,l,[x[i]],[1])
 		@test isapprox(y[1] ,myfun(x[i]),atol=1e-8)
@@ -768,8 +773,8 @@ end
 	xg = zeros(n)
 	xg[1] = log(lb + 1) 
 	xg[n] = log(ub + 1) 
-	xg    = linspace(xg[1],xg[n],n)
-	xg    = exp.(xg) - 1  
+	xg    = range(xg[1],stop = xg[n],length = n)
+	xg    = exp.(xg) .- 1  
 
 	gs = Array{Float64,1}[]
 	push!(gs, xg)
@@ -784,7 +789,7 @@ end
 	l = Lininterp(vs,gs)
 	y = [0.0]
 	# check at increasing vals in interval
-	x = linspace(lb,ub,300)
+	x = range(lb,stop = ub,length = 300)
 	for i in 1:length(x)
 		getValue!(y,l,[x[i]],[1])
 		@test isapprox(y[1] ,myfun(x[i]),atol=1e-8)
@@ -807,8 +812,8 @@ end
 	ubs = [3.0,5.0]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],3))
-	push!(gs, linspace(lbs[2],ubs[2],4))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 3))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 4))
 
 	myfun(i1,i2) = 0.5*i1 + 2*i2 
 	
@@ -847,8 +852,8 @@ end
 	lbs = [1.0,2.0]
 	ubs = [33.0,5.0]
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],30))
-	push!(gs, linspace(lbs[2],ubs[2],40))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 30))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 40))
 
 	vs = Float64[ myfun(i,j) for i in gs[1], j in gs[2]]
 
@@ -870,9 +875,9 @@ end
 	ubs = [3.0,5.0,3]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],3))
-	push!(gs, linspace(lbs[2],ubs[2],4))
-	push!(gs, linspace(lbs[3],ubs[3],5))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 3))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 4))
+	push!(gs, range(lbs[3],stop = ubs[3],length = 5))
 
 	myfun(i1,i2,i3) = 0.5*i1 + 2*i2 + 3*i3
 	
@@ -913,9 +918,9 @@ end
 	lbs = [1.0,2.0,-10]
 	ubs = [33.0,5.0,3]
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],30))
-	push!(gs, linspace(lbs[2],ubs[2],40))
-	push!(gs, linspace(lbs[3],ubs[3],50))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 30))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 40))
+	push!(gs, range(lbs[3],stop = ubs[3],length = 50))
 
 	vs = Float64[ myfun(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 
@@ -936,9 +941,9 @@ end
 	ubs = [3.0,5.0,3]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],3))
-	push!(gs, linspace(lbs[2],ubs[2],4))
-	push!(gs, linspace(lbs[3],ubs[3],5))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 3))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 4))
+	push!(gs, range(lbs[3],stop = ubs[3],length = 5))
 
 	myfun1(i1,i2,i3) = 0.5*i1 + 2*i2 + 3*i3
 	myfun2(i1,i2,i3) = 3*i1 + pi*i2 + 0.1*i3
@@ -989,9 +994,9 @@ end
 	lbs = [1.0,2.0,-10]
 	ubs = [33.0,5.0,3]
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],30))
-	push!(gs, linspace(lbs[2],ubs[2],40))
-	push!(gs, linspace(lbs[3],ubs[3],50))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 30))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 40))
+	push!(gs, range(lbs[3],stop = ubs[3],length = 50))
 
 	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
@@ -1013,9 +1018,9 @@ end
 	ubs = [3.0,5.0,3]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],3))
-	push!(gs, linspace(lbs[2],ubs[2],4))
-	push!(gs, linspace(lbs[3],ubs[3],5))
+	push!(gs, range(lbs[1],stop = ubs[1],length = 3))
+	push!(gs, range(lbs[2],stop = ubs[2],length = 4))
+	push!(gs, range(lbs[3],stop = ubs[3],length = 5))
 
 	myfun1(i1,i2,i3) = 0.5*i1 + 2*i2 + 3*i3
 	myfun2(i1,i2,i3) = 3*i1 + pi*i2 + 0.1*i3
@@ -1086,9 +1091,9 @@ end
 	lbs = [1.0,2.0,-10]
 	ubs = [33.0,5.0,3]
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],30))
-	push!(gs, linspace(lbs[2],ubs[2],40))
-	push!(gs, linspace(lbs[3],ubs[3],50))
+	push!(gs, range(lbs[1],stop = ubs[1], length = 30))
+	push!(gs, range(lbs[2],stop = ubs[2], length = 40))
+	push!(gs, range(lbs[3],stop = ubs[3], length = 50))
 
 	vs1 = Float64[ myfun1(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
 	vs2 = Float64[ myfun2(i,j,k) for i in gs[1], j in gs[2], k in gs[3] ]
@@ -1112,9 +1117,9 @@ end
 	ubs = [3.0,5.0,3]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],3))
-	push!(gs, linspace(lbs[2],ubs[2],4))
-	push!(gs, linspace(lbs[3],ubs[3],5))
+	push!(gs, range(lbs[1],stop = ubs[1], length = 3))
+	push!(gs, range(lbs[2],stop = ubs[2], length = 4))
+	push!(gs, range(lbs[3],stop = ubs[3], length = 5))
 
 	myfun(i1,i2,i3) = i1 + 2*i2 + 3*i3
 	
@@ -1149,10 +1154,10 @@ end
 	ubs = [3.0,5.0,3,18.0]
 
 	gs = Array{Float64,1}[]
-	push!(gs, linspace(lbs[1],ubs[1],3))
-	push!(gs, linspace(lbs[2],ubs[2],4))
-	push!(gs, linspace(lbs[3],ubs[3],5))
-	push!(gs, linspace(lbs[4],ubs[4],9))
+	push!(gs, range(lbs[1],stop = ubs[1], length = 3))
+	push!(gs, range(lbs[2],stop = ubs[2], length = 4))
+	push!(gs, range(lbs[3],stop = ubs[3], length = 5))
+	push!(gs, range(lbs[4],stop = ubs[4], length = 9))
 
 	myfun1(i1,i2,i3,i4) = 0.5*i1 + 2*i2 + 3*i3 + i4/0.98
 	myfun2(i1,i2,i3,i4) = i1 + 0.2*i2 + 3*i3 + i4
@@ -1266,3 +1271,4 @@ end
 end
 
 
+end

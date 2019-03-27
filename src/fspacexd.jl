@@ -1,6 +1,6 @@
 
 
-type FSpaceXD
+mutable struct FSpaceXD
 	ndim       :: Integer                                  # number of dimensions
 	coeff      :: Array{Float64}		                   # coefficient vector/
 	basis      :: Dict{Integer,BSpline}	                   # dict with spline objects

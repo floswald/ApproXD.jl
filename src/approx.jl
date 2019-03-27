@@ -9,7 +9,7 @@
 # a tensor product of basis functions
 # NOTE: the fastest varying index in v is the one with highest 
 # index in ibm
-function getTensorCoef{T<:Real}(ibm::Dict{Integer,Array{T,2}},v::Vector{T})
+function getTensorCoef(ibm::Dict{Integer, Array{T, 2}}, v::Vector{T}) where T <: Real
 
 	# ibm are usually inverse basis matrices
 
@@ -71,7 +71,7 @@ end
 
 
 
-function evalTensor2(mat1::Array{Float64,2},mat2::Array{Float64,2},c::Vector)
+function evalTensor2(mat1::Vector{T}, mat2::Vector{T}, c::Vector) where T
 
 	# TODO
 	# sparse: if you had a type BSpline with field "nonzero" that
@@ -118,33 +118,7 @@ function evalTensor2(mat1::Array{Float64,2},mat2::Array{Float64,2},c::Vector)
 end
 
 
-function evalTensor2{T}(mat1::Vector{T},mat2::Vector{T},c::Vector)
-
-	# TODO
-	# sparse
-
-	m1 = length(mat1)
-	m2 = length(mat2)
-	col_offset = 0
-	factor = 0.0
-
-	r = 0.0
-
-	# loop over cols of 1
-	for col_idx1 in 1:m1
-		col_offset = (col_idx1-1) * m2
-		factor = mat1[col_idx1]
-
-		# loop over cols of 2
-		for col_idx2 in 1:m2
-
-			r += factor * mat2[col_idx2] * c[col_offset + col_idx2]
-		end
-	end
-	return r
-end
-
-function evalTensor2{T}(mat1::SparseMatrixCSC{T,Int64},mat2::SparseMatrixCSC{T,Int64},c::Vector{T})
+function evalTensor2(mat1::SparseMatrixCSC{T, Int64}, mat2::SparseMatrixCSC{T, Int64}, c::Vector{T}) where T
 
 	# assume that the basis matrix is stored colwise
 	# i.e. the first column are the basis functions
@@ -188,7 +162,7 @@ function evalTensor2{T}(mat1::SparseMatrixCSC{T,Int64},mat2::SparseMatrixCSC{T,I
 end
 
 
-function evalTensor3(mat1::Array{Float64,2},mat2::Array{Float64,2},mat3::Array{Float64,2},c::Vector)
+function evalTensor3(mat1::SparseMatrixCSC{T, Int64}, mat2::SparseMatrixCSC{T, Int64}, mat3::SparseMatrixCSC{T, Int64}, c::Vector{T}) where T
 
 	n1 = size(mat1,1)
 	n2 = size(mat2,1)
@@ -273,42 +247,6 @@ function evalTensor3(mat1::Array{Float64,1},mat2::Array{Float64,1},mat3::Array{F
 end
 
 
-function evalTensor3{T}(mat1::SparseMatrixCSC{T,Int64},mat2::SparseMatrixCSC{T,Int64},mat3::SparseMatrixCSC{T,Int64},c::Vector{T})
-
-	if size(mat1)[2] > 1
-		error("only doing column vector so far, sorry")
-	end
-
-	m1 = length(mat1)
-	m2 = length(mat2)
-	m3 = length(mat3)
-	offset1= 0
-	factor1= 0.0
-	offset2= 0
-	factor2= 0.0
-
-	r = 0.0
-
-	# loop over non-zeros in mat1
-	for idx1 in mat1.rowval
-		offset1 = (idx1-1) * m2
-		factor1 = mat1[idx1]
-
-		# loop over non-zeros in mat2
-		for idx2 in mat2.rowval
-			offset2 = (offset1 + (idx2-1)) * m3
-			factor2 = factor1 * mat2[idx2]
-
-			# cols mat3
-			for idx3 in 1:m3
-				r += factor2 * mat3[idx3] * c[offset2 + idx3]
-			end
-		end
-	end
-	return r
-end
-
-
 # loops over matrix rows
 function evalTensor4(mat1::Array{Float64,2},mat2::Array{Float64,2},mat3::Array{Float64,2},mat4::Array{Float64,2},c::Vector)
 
@@ -373,7 +311,7 @@ function evalTensor4(mat1::Array{Float64,2},mat2::Array{Float64,2},mat3::Array{F
 	return r
 end
 
-function evalTensor4{T}(mat1::SparseMatrixCSC{T,Int64},mat2::SparseMatrixCSC{T,Int64},mat3::SparseMatrixCSC{T,Int64},mat4::SparseMatrixCSC{T,Int64},c::Vector{T})
+function evalTensor4(mat1::SparseMatrixCSC{T, Int64}, mat2::SparseMatrixCSC{T, Int64}, mat3::SparseMatrixCSC{T, Int64}, mat4::SparseMatrixCSC{T, Int64}, c::Vector{T}) where T
 
 	if size(mat1)[2] > 1
 		error("only doing column vector so far, sorry")
@@ -418,7 +356,7 @@ end
 
 
 
-function evalTensor{T}(bs::Dict{Int64,SparseMatrixCSC{T,Int64}},c::Array{T})
+function evalTensor(bs::Dict{Int64, SparseMatrixCSC{T, Int64}}, c::Array{T}) where T
 
 	n = length(bs)
 	if n == 2

@@ -1,13 +1,5 @@
-
-
-using Base.Test
-using TestSetExtensions
-using ApproXD
-
-@testset ExtendedTestSet "Running ApproXD tests" begin
-
-    @includetests ARGS
-
-end
-
+include("test_basics.jl")    
+include("test_approx.jl")
+include("test_lininterp.jl")
+include("test_FSpaceXD.jl")
 

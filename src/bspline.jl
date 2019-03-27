@@ -3,7 +3,7 @@
 
 
 
-type BSpline
+mutable struct BSpline
 	degree   :: Int
 	numKnots :: Int
 	lower    :: Float64
@@ -103,9 +103,9 @@ function getBasis(x::Float64,b::BSpline)
 
 	# check x
 	if x < b.lower
-		warn("x < lb: x=$x, lb=$(b.lower). be careful!")
+		@warn("x < lb: x=$x, lb=$(b.lower). be careful!")
 	elseif x > b.upper
-		warn("x > ub: x=$x, ub=$(b.upper). be careful!")
+		@warn("x > ub: x=$x, ub=$(b.upper). be careful!")
 	end
 
 	# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
@@ -167,7 +167,7 @@ function getBasis(x::Vector{Float64},b::BSpline)
 
 	# if you evaluate a degree 1 basis at its interior knots ("coefs"), you get identity
 	if (deg == 1) && (n == num_nodes) && (sum(abs.(x .- getCoefs(b))) < 1e-8)
-		return speye(n)
+		return sparse(I*1.0,n,n)
 	else
 	# sort x?
 		
@@ -184,9 +184,9 @@ function getBasis(x::Vector{Float64},b::BSpline)
 
 			# check x
 			if x[xi] < b.lower
-				warn("x < lb: x=$(x[xi]), lb=$(b.lower). be careful!")
+				@warn("x < lb: x=$(x[xi]), lb=$(b.lower). be careful!")
 			elseif x[xi] > b.upper
-				warn("x > ub: x=$(x[xi]), ub=$(b.upper). be careful!")
+				@warn("x > ub: x=$(x[xi]), ub=$(b.upper). be careful!")
 			end
 
 			# get mu s.t. knot_mu < knot_{mu+1} and x in [knot_mu, knot_{mu+1})
