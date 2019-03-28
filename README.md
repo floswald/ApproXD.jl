@@ -15,3 +15,35 @@
     is a valid knot vector.
 * Documentation is non-existent. Please look at the tests. Sorry.
 
+## Example
+
+```julia
+using ApproXD
+f(x) = abs.(x).^0.5
+lb,ub = (-1.0,1.0)
+nknots = 13
+deg = 3
+
+# standard case: equally spaced knots
+params1 = BSpline(nknots,deg,lb,ub)   
+nevals = 5 * params1.numKnots # get nBasis < nEvalpoints
+
+# myknots with knot multiplicity at 0
+myknots = vcat(range(-1,stop = -0.1,length = 5),0,0,0,  range(0.1,stop = 1,length =5))
+params2 = BSpline(myknots,deg)  # 0: no derivative
+
+# get coefficients for each case
+eval_points = collect(range(lb,stop = ub,length = nevals))  
+c1 = getBasis(eval_points,params1) \ f(eval_points)
+c2 = getBasis(eval_points,params2) \ f(eval_points)
+
+# look at errors over entire interval
+test_points = collect(range(lb,stop = ub,length = 1000));
+truth = f(test_points);
+p1 = getBasis(test_points,params1) * c1;
+p2 = getBasis(test_points,params2) * c2;
+e1 = p1 - truth;
+e2 = p2 - truth;
+```
+
+![](question_5.png)
